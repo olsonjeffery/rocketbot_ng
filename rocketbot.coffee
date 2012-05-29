@@ -5,5 +5,5 @@ options = require 'options'
 
 console.log 'rocketbot_ng'
 
-hook = hookio.createHook(options)
-hook.start()
+bot = new irc(options)
+bot.start()
