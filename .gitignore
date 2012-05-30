@@ -17,5 +17,6 @@ npm-debug.log
 *~
 *#
 *swp
+.#*
 options.coffee
 config.json
