@@ -1,2 +1,0 @@
-#!/bin/sh
-NODE_PATH=$NODE_PATH /usr/bin/env coffee rocketbot.coffee
