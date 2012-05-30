@@ -26,11 +26,12 @@ rocketbot.addListener "message", (sending_nick, dest_nick, text) ->
     parsed_msg = parse_msg sending_nick, reply_to_nick, options.cmd_prefix,
                            text
     result = _.detect plugin_loader.plugins, (plg) ->
+      match_regex = plg.match_regex()
       if parsed_msg.has_command
         console.log "incoming msg has_command #{parsed_msg.command}"
         _.detect plg.commands, (cmd) ->
           cmd == parsed_msg.command
-      else if plg.match_regex().test parsed_msg.text
+      else if match_regex? and match_regex.test parsed_msg.text
         console.log "regex match!"
         true
       else

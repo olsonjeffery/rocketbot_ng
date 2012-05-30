@@ -29,8 +29,7 @@ scrape_multiple = (host, urls, cb) ->
 
   agent.addListener 'next', (err, agent) ->
     window = jsdom(agent.body).createWindow()
-    jq = require('jquery').create(window)
-    cb window, jq
+    cb agent.body, window
     agent.next()
 
   agent.addListener 'stop', (err, agent) ->
