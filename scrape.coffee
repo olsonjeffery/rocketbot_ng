@@ -15,9 +15,16 @@ util = require 'util'
 url = require 'url'
 httpAgent = require 'http-agent'
 jsdom = require('jsdom').jsdom
+_ = require 'underscore'
+
+moz_agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:12.0)' +
+            ' Gecko/20100101 Firefox/12.0'
 
 scrape_multiple = (host, urls, cb) ->
-  agent = httpAgent.create host, urls
+  options = _.map urls, (u) ->
+    console.log "setting up url '#{host+u}'"
+    return { uri: u, method: 'GET', headers: {'User-Agent':moz_agent} }
+  agent = httpAgent.create host, options
   console.log 'Scraping', urls.length, 'pages from', agent.host
 
   agent.addListener 'next', (err, agent) ->
@@ -41,10 +48,7 @@ scrape_single = (raw_url, cb) ->
   scrape_multiple host, urls, cb
 
 scrape =
-  scrape_single: scrape_single
-  scrape_multiple: scrape_multiple
+  single: scrape_single
+  multiple: scrape_multiple
 
 module.exports = scrape
-
-scrape_single 'http://www.google.com', (window, $) ->
-  console.log "page title: '#{$('title').text()}'"
