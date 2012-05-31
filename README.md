@@ -5,8 +5,8 @@ aroo?
 
 ### deps & install..
 
-* get node.js & npm
-* `npm install coffee-script underscore sugar jquery jsdom xml2js http-agent`
+* get node.js, npm & redis
+* `npm install coffee-script underscore sugar jquery jsdom xml2js http-agent hiredis redis`
 ~                                                                           
 ~                                                                           
 ~                                                                           
