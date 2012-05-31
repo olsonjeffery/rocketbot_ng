@@ -13,7 +13,7 @@ class weather
   process: (client, msg) ->
     loc = msg.msg.compact()
     if loc == ''
-      console.say msg.reply, "Sorry, you need to provide a location"+
+      client.say msg.reply, "Sorry, you need to provide a location"+
                              " to lookup weather for."
     else
       url = "http://www.google.com/ig/api?weather=#{loc}"
@@ -40,6 +40,7 @@ class weather
               client.say msg.reply, "#{humidity} #{wind}"
               #console.log "result: #{JSON.stringify(result)}"
             else
+              # forecast
               loc = result.weather.forecast_information.city['@'].data
               client.say msg.reply, "Forecast for #{loc}"
               first = true
@@ -59,7 +60,6 @@ class weather
                 console.log f
                 client.say msg.reply, f
           else
-            # forecast
             client.say msg.reply, "Unable to find weather information"+
               " for '#{loc}'"
 
