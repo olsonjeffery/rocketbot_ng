@@ -28,9 +28,15 @@ scrape_multiple = (host, urls, cb) ->
   console.log 'Scraping', urls.length, 'pages from', agent.host
 
   agent.addListener 'next', (err, agent) ->
-    window = jsdom(agent.body).createWindow()
-    cb agent.body, window
-    agent.next()
+    if agent?
+      window = jsdom(agent.body).createWindow()
+      try
+        cb agent.body, window
+      catch e
+        console.log "error occured while running cb: #{e}"
+      agent.next()
+    else
+      console.log "failure to fetch page, err: '#{err}'"
 
   agent.addListener 'stop', (err, agent) ->
     if err then console.log(err)
