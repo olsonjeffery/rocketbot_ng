@@ -3,7 +3,7 @@ jsdom = require('jsdom').jsdom
 
 class wikipedia
   constructor: (plg_ldr, options) ->
-  name: 'weather'
+  name: 'wikipedia'
   version: '1'
   commands: [ 'wiki' ]
   match_regex: ->
