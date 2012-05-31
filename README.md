@@ -6,13 +6,7 @@ aroo?
 ### deps & install..
 
 * get node.js & npm
-* `npm install coffee-script`
-* `npm install underscore`
-* `npm install sugar`
-* `npm install jquery`
-* `npm install jsdom`
-* `npm install xml2js`
-* `npm install http-agent`
+* `npm install coffee-script underscore sugar jquery jsdom xml2js http-agent`
 ~                                                                           
 ~                                                                           
 ~                                                                           
