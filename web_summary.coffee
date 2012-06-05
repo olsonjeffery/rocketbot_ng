@@ -29,4 +29,5 @@ class web_summary
       else
         console.log 'no meta..'
 
-module.exports = web_summary
+module.exports =
+  plugins: [web_summary]

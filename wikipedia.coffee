@@ -28,8 +28,9 @@ class wikipedia
         $ = require('jquery').create(window)
         first_graf = $('p:first').text()
         if first_graf?
-          client.say msg.reply, "\"#{first_graf}\"".truncate(499)
+          client.say msg.reply, "\"#{first_graf.truncate(400)}\""
         else
           client.say msg.reply, "no data found. hm."
 
-module.exports = wikipedia
+module.exports =
+  plugins: [wikipedia]

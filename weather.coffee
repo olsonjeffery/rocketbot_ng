@@ -63,4 +63,5 @@ class weather
             client.say msg.reply, "Unable to find weather information"+
               " for '#{loc}'"
 
-module.exports = weather
+module.exports =
+  plugins: [weather]
