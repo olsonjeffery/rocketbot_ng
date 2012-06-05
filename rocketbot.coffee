@@ -2,14 +2,25 @@
 _ = require 'underscore'
 irc = require 'irc'
 require 'sugar'
+Sequelize = require 'sequelize'
 
 options = require "options"
 plugin_loader = require 'plugin_loader'
 parse_msg = require 'parse_msg'
 
-console.log "rocketbot_ng"
+console.log "rocketbot_ng #{options.version} startuping up"
 
-plugin_loader.init options
+console.log "setting up db connection..."
+# set up the db
+sequelize = new Sequelize(
+  options.db.database, options.db.username,
+  options.db.password, {
+    dialect: 'sqlite'
+    storage: options.db.storage
+  }
+)
+
+plugin_loader.init options, sequelize
 
 rocketbot = new irc.Client options['irc-server'], options.nick,
   channels: options.channels
@@ -41,3 +52,7 @@ rocketbot.addListener "message", (sending_nick, dest_nick, text) ->
       result.process rocketbot, parsed_msg
     else
       console.log "no match for provided text '#{text}'"
+rocketbot.addListener "motd", (motd) ->
+  console.log "received MOTD from server"
+rocketbot.addListener "join", (chan, nick, msg) ->
+  console.log "rocketbot has joined #{chan}"
