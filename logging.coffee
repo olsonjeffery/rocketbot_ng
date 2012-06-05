@@ -33,7 +33,7 @@ class seen
     latest = models.log_entry.latest_entry_for msg.msg, (entry) ->
       if entry?
         client.say msg.reply, "#{entry.nick} was last seen on "+
-          "#{msg.createdAt} saying '#{entry.msg}'."
+          "#{entry.createdAt} saying '#{entry.msg}'."
       else
         client.say msg.reply, "I haven't heard anything from #{msg.msg}"
 
