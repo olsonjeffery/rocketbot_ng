@@ -20,7 +20,7 @@ sequelize = new Sequelize(
   }
 )
 
-plugin_loader.init options, sequelize
+plugin_loader.init(options, {sequelize: sequelize, Sql: Sequelize})
 
 rocketbot = new irc.Client options['irc-server'], options.nick,
   channels: options.channels
