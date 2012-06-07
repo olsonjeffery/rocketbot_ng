@@ -1,6 +1,7 @@
 _ = require 'underscore'
 jsdom = require 'jsdom'
 scrape = require 'scrape'
+require 'sugar'
 
 models = {}
 
@@ -52,10 +53,10 @@ class links_plugin
     if msg.msg != ''
       console.log "links for '#{msg.msg}'"
       models.web_link.latest_links_for msg.msg, (links) ->
-        if links?
+        if links? and links.length > 0
           client.say msg.reply, "Most recent links from #{msg.msg}:"
           _.each links, (l) ->
-            client.say msg.reply, "#{l.createdAt} #{l.url} --"+
+            client.say msg.reply, "#{l.createdAt.relative()} #{l.url} -- "+
               "\"#{l.title}\""
         else
           client.say msg.reply, "I haven't seen any links from #{msg.msg}"
@@ -63,13 +64,12 @@ class links_plugin
       console.log "all recent links.."
       models.web_link.latest_links (links) ->
         if links?
-          client.say "Most recent links:"
+          client.say msg.reply, "Recent links:"
           _.each links, (l) ->
-            client.say msg.reply, "#{l.createdAt} from #{l.nick}: #{l.url} --"+
-              "\"#{l.title}\""
+            client.say msg.reply, "#{l.createdAt.relative()} from " +
+              "#{l.nick}: #{l.url} -- \"#{l.title}\""
         else
-          console.log "I haven't seen any links from #{msg.msg}"
-
+          console.log "Huh. I don't have any saved links. Sorry, dude."
 
 class web_summary
   constructor: (plg_ldr, options, @db) ->
@@ -88,7 +88,7 @@ class web_summary
       $ = require('jquery').create(window)
       page_title = $('title').text().replace("\n",'') \
                      .replace("\t",'').compact()
-      client.say msg.reply_to_nick, "#{page_title}"
+      client.say msg.reply_to_nick, "\"#{page_title}\""
       desc = $('meta[name="description"]');
       desc_txt = ''
 
