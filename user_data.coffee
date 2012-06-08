@@ -109,7 +109,7 @@ punshe_common = (client, msg, is_punish) ->
             punish_nick pun_nick, client, msg.reply, null, is_punish
           else
             client.say msg.reply, "Sorry, I can't give an unattributed "+
-              if is_punish then "punishment " else "un-punishment"+
+              (if is_punish then "punishment " else "un-punishment")+
               "to someone who hasn't spoken in the last ten minutes."
     else
       client.say msg.reply, "I don't even know who #{pun_nick} is, sorry."
