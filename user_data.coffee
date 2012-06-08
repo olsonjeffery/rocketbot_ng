@@ -53,7 +53,7 @@ punish_nick = (pun_nick, client, reply, frag, is_punish) ->
     else if ud.puns > 0
       ud.puns -= 1
     ud.save()
-    client.say reply, "#{pun_nick} now owes the swear jar "+
+    client.say reply, "#{pun_nick} now owes the pun jar "+
       "$#{(ud.puns * 0.25).format(2)} #{frag_msg}."
 
 punshe_common = (client, msg, is_punish) ->
