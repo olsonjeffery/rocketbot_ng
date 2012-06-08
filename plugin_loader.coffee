@@ -5,6 +5,7 @@ web_summary = require 'web_summary'
 wikipedia = require 'wikipedia'
 etym = require 'etym'
 logging = require 'logging'
+user_data = require 'user_data'
 
 plugin_loader =
   init: (options, db) ->
@@ -15,7 +16,8 @@ plugin_loader =
       weather.plugins,
       wikipedia.plugins,
       etym.plugins,
-      logging.plugins
+      logging.plugins,
+      user_data.plugins
     ])
     # initialize them all..
     @plugins = _.map plugins, (plg) =>

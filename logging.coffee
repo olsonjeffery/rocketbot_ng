@@ -8,16 +8,41 @@ log_entry_init = (db) ->
       chan: db.Sql.STRING,
       nick: db.Sql.STRING,
       msg: db.Sql.TEXT,
+      is_pun: db.Sql.BOOLEAN
     },
     {
       classMethods: {
         latest_entry_for: (nick, cb) ->
+          @find({
+            order: 'createdAt DESC',
+            where: {nick: nick}
+          }).success (entry) ->
+            cb entry
+        entries_for_nick_after: (nick, cutoff, cb) ->
           @findAll({
             order: 'createdAt DESC',
-            limit: 1,
-            where: {nick: nick}
+            where: ['datetime(createdAt) > datetime(?)',
+                    cutoff.format('{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}')],
           }).success (entries) ->
-            cb _.first(entries)
+            console.log "# if entries since cuttoff: #{entries.length}"
+            entries = _.filter entries, (e) ->
+              e.nick == nick
+            console.log "# if entries by nick since c/o: #{entries.length}"
+            cb entries
+         recent_puns: (cb) ->
+          @findAll({
+            order: 'createdAt DESC',
+            limit: 5,
+            where: {is_pun: 1}
+          }).success (entries) ->
+            cb entries
+         recent_puns_from: (nick, cb) ->
+          @findAll({
+            order: 'createdAt DESC',
+            limit: 5,
+            where: {is_pun: 1, nick: nick}
+          }).success (entries) ->
+            cb entries
       }
     })
   models.log_entry.sync()
@@ -46,6 +71,7 @@ class logging
   match_regex: ->
     /^.*$/
   process: (client, msg) ->
+    console.log "LOGGING: <#{msg.sending_nick}> #{msg.text}"
     models.log_entry.create
       chan: msg.reply
       nick: msg.sending_nick
