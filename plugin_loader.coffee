@@ -6,6 +6,7 @@ wikipedia = require 'wikipedia'
 etym = require 'etym'
 logging = require 'logging'
 user_data = require 'user_data'
+webdip = require 'webdip'
 
 plugin_loader =
   init: (options, db) ->
@@ -17,7 +18,8 @@ plugin_loader =
       wikipedia.plugins,
       etym.plugins,
       logging.plugins,
-      user_data.plugins
+      user_data.plugins,
+      webdip.plugins
     ])
     # initialize them all..
     @plugins = _.map plugins, (plg) =>
