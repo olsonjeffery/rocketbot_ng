@@ -24,9 +24,6 @@ webdip_game_init = (db) ->
             where: {game_id: game_id}
           }).success (game) ->
             cb game
-        all: (cb) ->
-          @all().success (entries) ->
-            cb entries
       }
     })
   models.webdip_game.sync()
@@ -112,6 +109,12 @@ class webdip_dip_plugin
     null
   process: (client, msg) ->
     short_name = msg.msg
+    console.log "short_name: '#{short_name}'"
+    if short_name == ''
+      all_games = models.webdip_game.all().success (games) ->
+        names = (_.map games, (g) -> g.short_name).join(', ')
+        client.say msg.reply, "Diplomacy games that I'm following: #{names}"
+      return null
     models.webdip_game.by_short_name short_name, (g) ->
       if g?
         game_url = webdip_url + g.game_id
