@@ -138,7 +138,7 @@ class punjar_plugin
         _.each entries, (e) ->
           client.say msg.reply, "#{ctr}. #{e.nick} - "+
                "$#{(e.puns *.25).format(2)}"
-          ctr+=2
+          ctr+=1
 class shenanigans_plugin
   constructor: (plg_ldr, options, @db) ->
     if not user_data_initialized
