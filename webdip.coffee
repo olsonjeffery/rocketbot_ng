@@ -98,6 +98,88 @@ class webdip_rmdip_plugin
         client.say msg.reply, "Sorry, I'm not tracking any diplomacy games"+
          " named #{short_name}."
 
+webdip_data_by_short_name = (short_name, cb) ->
+  if short_name == ''
+    all_games = models.webdip_game.all().success (games) ->
+      names = (_.map games, (g) -> g.short_name).join(', ')
+      client.say msg.reply, "Diplomacy games that I'm following: #{names}"
+    return null
+  models.webdip_game.by_short_name short_name, (g) ->
+    if g?
+      game_url = webdip_url + g.game_id
+      scrape.single game_url, (body, window) ->
+        $ = require('jquery').create(window)
+        valid_game = $('span.gameName').length == 1
+        if valid_game
+          game_name = $('span.gameName').text()
+          game_date = $('span.gameDate').text()
+          game_phase = $('span.gamePhase').text()
+          time_remaining = $('span.timeremaining').text()
+          iterator = (e) ->
+            member_row = $(e)
+            status_alt = member_row.find(
+              '.memberCountryName img').attr('alt')
+            status = if status_alt == 'Ready'
+              'Orders Ready'
+            else if status_alt == 'Completed'
+              'Orders Saved'
+            else if not status_alt?
+              'No Move' # no img.. just a dash
+            else
+              'No Orders'
+            country_name = $(member_row.find(
+              '.memberCountryName span')[1]).text()
+            player_name = member_row.find('span.memberName a').text()
+            sc_count = $(member_row.find(
+              'span.memberSCCount em')[0]).text()
+            unit_count = $(member_row.find(
+              'span.memberSCCount em')[1]).text()
+            worth = $(member_row.find(
+              'span.memberPointsCount em')[1]).text()
+            return {
+              status: status, country_name: country_name,
+              player_name: player_name, sc_count: sc_count,
+              unit_count: unit_count, worth: worth
+            }
+          player_data = _.map($('tr.member'), iterator)
+          console.log "about to invoke webdip callback.."
+          cb({
+            game_name: game_name
+            game_date: game_date
+            game_phase: game_phase
+            time_remaining: time_remaining
+            player_data: player_data
+          })
+        else
+          client.say msg.reply, "It appears that #{short_name} is no "+
+           "an active game on www.webdiplomacy.net. Did the game end "+
+           "or get deleted?"
+    else
+      client.say msg.reply, "Sorry, I'm not tracking any diplomacy games"+
+       " named #{short_name}."
+
+class webdip_dipcop_plugin
+  constructor: (plg_ldr, @options, @db) ->
+    if not webdip_game_initialized
+      webdip_game_init @db
+  name: 'dipcop'
+  version: '1'
+  commands: ['dipcop']
+  match_regex: () ->
+    null
+  process: (client, msg) ->
+    short_name = msg.msg
+    webdip_data_by_short_name short_name, (data) ->
+      console.log "short_name: '#{data.short_name}'"
+      dirtbags = _.filter data.player_data, (pd) ->
+        pd.status != "Orders Ready" and pd.status != "No Move"
+      scum_arr = []
+      _.each dirtbags, (pd) ->
+        scum_arr.push "#{pd.country_name}: #{pd.status}"
+      player_list = scum_arr.join(', ')
+      client.say msg.reply,
+        "Degenerate scum of #{data.game_name}: #{player_list}"
+
 class webdip_dip_plugin
   constructor: (plg_ldr, @options, @db) ->
     if not webdip_game_initialized
@@ -109,57 +191,19 @@ class webdip_dip_plugin
     null
   process: (client, msg) ->
     short_name = msg.msg
-    console.log "short_name: '#{short_name}'"
-    if short_name == ''
-      all_games = models.webdip_game.all().success (games) ->
-        names = (_.map games, (g) -> g.short_name).join(', ')
-        client.say msg.reply, "Diplomacy games that I'm following: #{names}"
-      return null
-    models.webdip_game.by_short_name short_name, (g) ->
-      if g?
-        game_url = webdip_url + g.game_id
-        scrape.single game_url, (body, window) ->
-          $ = require('jquery').create(window)
-          valid_game = $('span.gameName').length == 1
-          if valid_game
-            game_name = $('span.gameName').text()
-            game_date = $('span.gameDate').text()
-            game_phase = $('span.gamePhase').text()
-            time_remaining = $('span.timeremaining').text()
-            client.say msg.reply, "#{game_name} - #{game_date}, "+
-             "#{game_phase} - Next: #{time_remaining} || Player Statuses:"
-            iterator = (e) ->
-              member_row = $(e)
-              status_alt = member_row.find(
-                '.memberCountryName img').attr('alt')
-              status = if status_alt == 'Ready'
-                'Orders Ready'
-              else if status_alt == 'Completed'
-                'Orders Saved'
-              else
-                'No Orders'
-              country_name = $(member_row.find(
-                '.memberCountryName span')[1]).text()
-              player_name = member_row.find('span.memberName a').text()
-              sc_count = $(member_row.find(
-                'span.memberSCCount em')[0]).text()
-              unit_count = $(member_row.find(
-                'span.memberSCCount em')[1]).text()
-              worth = $(member_row.find(
-                'span.memberPointsCount em')[1]).text()
-              client.say msg.reply,
-                "<#{player_name}> #{country_name} -- "+
-                "#{status} SC: #{sc_count} U: #{unit_count} "+
-                "W: #{worth}"
-            _.each($('tr.member'), iterator)
-          else
-            client.say msg.reply, "It appears that #{short_name} is no "+
-             "an active game on www.webdiplomacy.net. Did the game end "+
-             "or get deleted?"
-      else
-        client.say msg.reply, "Sorry, I'm not tracking any diplomacy games"+
-         " named #{short_name}."
+    webdip_data_by_short_name short_name, (data) ->
+      console.log "short_name: '#{data.short_name}'"
+      client.say msg.reply, "#{data.game_name} - #{data.game_date}, "+
+       "#{data.game_phase} - Next: #{data.time_remaining} || "+
+       "Player Statuses:"
+      iterator = (pd) ->
+        client.say msg.reply,
+          "<#{pd.player_name}> #{pd.country_name} -- "+
+          "#{pd.status} SC: #{pd.sc_count} U: #{pd.unit_count} "+
+          "W: #{pd.worth}"
+      _.each(data.player_data, iterator)
 
 module.exports =
-  plugins: [webdip_newdip_plugin, webdip_rmdip_plugin, webdip_dip_plugin]
+  plugins: [webdip_newdip_plugin, webdip_rmdip_plugin, webdip_dip_plugin,
+              webdip_dipcop_plugin]
   models: models
