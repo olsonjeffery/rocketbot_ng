@@ -36,20 +36,15 @@ rocketbot.addListener "message", (sending_nick, dest_nick, text) ->
     reply_to_nick = if is_channel_msg then dest_nick else sending_nick
     parsed_msg = parse_msg sending_nick, reply_to_nick, options.cmd_prefix,
                            text
-    _.each plugin_loader.plugins, (plg) ->
-      match_regex = plg.match_regex()
-      if parsed_msg.has_command and plg.commands.length > 0
-        console.log "incoming msg has_command #{parsed_msg.command}"
-        match_cmd = _.detect plg.commands, (cmd) ->
-          cmd == parsed_msg.command
-        if match_cmd
-          console.log "cmd match"
-          plg.process rocketbot, parsed_msg
-      else if match_regex? and match_regex.test parsed_msg.text
-        console.log "regex match!"
-        plg.process rocketbot, parsed_msg
-      else
-        console.log "no matching-cmd or match regex..."
+    plugin_loader.process rocketbot, 'message', parsed_msg
+rocketbot.addListener "topic", (channel, topic, nick, message) ->
+  console.log "topic change!"
+  parsed_msg =
+    topic: topic
+    chan: channel
+    nick: nick
+    text: topic
+  plugin_loader.process rocketbot, 'topic', parsed_msg
 rocketbot.addListener "motd", (motd) ->
   console.log "received MOTD from server"
 rocketbot.addListener "join", (chan, nick, msg) ->

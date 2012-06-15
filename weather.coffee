@@ -3,9 +3,10 @@ xml2js = require 'xml2js'
 _ = require 'underscore'
 
 parser = new xml2js.Parser();
-class weather
+class weather_plugin
   constructor: (plg_ldr, options) ->
   name: 'weather'
+  msg_type: 'message'
   version: '1'
   commands: [ 'weather', 'forecast' ]
   match_regex: ->
@@ -64,4 +65,4 @@ class weather
               " for '#{loc}'"
 
 module.exports =
-  plugins: [weather]
+  plugins: [weather_plugin]

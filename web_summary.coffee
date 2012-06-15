@@ -44,6 +44,7 @@ class links_plugin
     if not web_link_initialized
       web_link_init @db
   name: 'links'
+  msg_type: 'message'
   version: '1'
   commands: ['links']
   match_regex: () ->
@@ -71,11 +72,12 @@ class links_plugin
         else
           console.log "Huh. I don't have any saved links. Sorry, dude."
 
-class web_summary
+class web_summary_plugin
   constructor: (plg_ldr, options, @db) ->
     if not web_link_initialized
       web_link_init @db
   name: 'url summary'
+  msg_type: 'message'
   version: '1'
   commands: []
   match_regex: () ->
@@ -108,5 +110,5 @@ class web_summary
         desc: desc_txt
 
 module.exports =
-  plugins: [web_summary, links_plugin]
+  plugins: [web_summary_plugin, links_plugin]
   models: models

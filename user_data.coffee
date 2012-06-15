@@ -119,6 +119,7 @@ class punjar_plugin
     if not user_data_initialized
       user_data_init @db
   name: 'punjar'
+  msg_type: 'message'
   version: '1'
   commands: ['punjar']
   match_regex: () ->
@@ -144,6 +145,7 @@ class shenanigans_plugin
     if not user_data_initialized
       user_data_init @db
   name: 'shenanigans'
+  msg_type: 'message'
   version: '1'
   commands: ['shenanigans']
   match_regex: () ->
@@ -156,6 +158,7 @@ class puns_plugin
     if not user_data_initialized
       user_data_init @db
   name: 'recent puns'
+  msg_type: 'message'
   version: '1'
   commands: ['puns']
   match_regex: () ->
@@ -186,6 +189,7 @@ class punish_plugin
     if not user_data_initialized
       user_data_init @db
   name: 'punish'
+  msg_type: 'message'
   version: '1'
   commands: ['pun', 'punish']
   match_regex: () ->

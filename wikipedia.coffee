@@ -1,9 +1,10 @@
 scrape = require 'scrape'
 jsdom = require('jsdom').jsdom
 
-class wikipedia
+class wikipedia_plugin
   constructor: (plg_ldr, options) ->
   name: 'wikipedia'
+  msg_type: 'message'
   version: '1'
   commands: [ 'wiki' ]
   match_regex: ->
@@ -33,4 +34,4 @@ class wikipedia
           client.say msg.reply, "no data found. hm."
 
 module.exports =
-  plugins: [wikipedia]
+  plugins: [wikipedia_plugin]

@@ -34,6 +34,7 @@ class webdip_newdip_plugin
     if not webdip_game_initialized
       webdip_game_init @db
   name: 'newdip'
+  msg_type: 'message'
   version: '1'
   commands: ['newdip']
   match_regex: () ->
@@ -83,6 +84,7 @@ class webdip_rmdip_plugin
     if not webdip_game_initialized
       webdip_game_init @db
   name: 'rmdip'
+  msg_type: 'message'
   version: '1'
   commands: ['rmdip']
   match_regex: () ->
@@ -163,6 +165,7 @@ class webdip_dipcop_plugin
     if not webdip_game_initialized
       webdip_game_init @db
   name: 'dipcop'
+  msg_type: 'message'
   version: '1'
   commands: ['dipcop']
   match_regex: () ->
@@ -185,6 +188,7 @@ class webdip_dip_plugin
     if not webdip_game_initialized
       webdip_game_init @db
   name: 'dip'
+  msg_type: 'message'
   version: '1'
   commands: ['dip']
   match_regex: () ->

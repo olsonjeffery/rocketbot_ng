@@ -1,9 +1,10 @@
 scrape = require 'scrape'
 
 
-class etym
+class etym_plugin
   constructor: (plg_ldr, options) ->
   name: 'etym'
+  msg_type: 'message'
   version: '1'
   commands: [ 'etym' ]
   match_regex: ->
@@ -22,4 +23,4 @@ class etym
         client.say msg.reply, "Read more at: #{url}"
 
 module.exports =
-  plugins: [etym]
+  plugins: [etym_plugin]

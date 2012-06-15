@@ -47,9 +47,10 @@ log_entry_init = (db) ->
     })
   models.log_entry.sync()
 
-class seen
+class seen_plugin
   constructor: (plg_ldr, options, @db) ->
   name: 'seen'
+  msg_type: 'message'
   version: '1'
   commands: ['seen']
   match_regex: ->
@@ -62,10 +63,11 @@ class seen
       else
         client.say msg.reply, "I haven't heard anything from #{msg.msg}"
 
-class logging
+class logging_plugin
   constructor: (plg_ldr, options, @db) ->
     log_entry_init @db
-  name: 'seen'
+  name: 'logging'
+  msg_type: 'message'
   version: '1'
   commands: []
   match_regex: ->
@@ -78,5 +80,5 @@ class logging
       msg: msg.text
 
 module.exports =
-  plugins: [logging, seen]
+  plugins: [logging_plugin, seen_plugin]
   models: models
