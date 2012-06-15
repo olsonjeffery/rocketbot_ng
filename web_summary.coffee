@@ -61,7 +61,7 @@ class links_plugin
               "#{l.url} - \"#{l.title}\""
             else
               "\"#{l.desc}\""
-            client.say msg.reply, "#{l.createdAt.relative()} #{display}"
+            client.say msg.reply, "#{display} #{l.createdAt.relative()}"
         else
           client.say msg.reply, "I haven't seen any links from #{msg.msg}"
     else
@@ -75,7 +75,7 @@ class links_plugin
             else
               "\"#{l.desc}\""
             client.say msg.reply, "<#{l.nick}> " +
-              "#{l.createdAt.relative()} #{display}"
+              "#{display} #{l.createdAt.relative()}"
         else
           console.log "Huh. I don't have any saved links. Sorry, dude."
 
