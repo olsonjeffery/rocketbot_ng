@@ -57,8 +57,7 @@ class links_plugin
         if links? and links.length > 0
           client.say msg.reply, "Most recent links from #{msg.msg}:"
           _.each links, (l) ->
-            client.say msg.reply, "#{l.createdAt.relative()} #{l.url} -- "+
-              "\"#{l.title}\""
+            client.say msg.reply, "#{l.createdAt.relative()} \"#{l.desc}\""
         else
           client.say msg.reply, "I haven't seen any links from #{msg.msg}"
     else
@@ -67,8 +66,8 @@ class links_plugin
         if links?
           client.say msg.reply, "Recent links:"
           _.each links, (l) ->
-            client.say msg.reply, "#{l.createdAt.relative()} from " +
-              "#{l.nick}: #{l.url} -- \"#{l.title}\""
+            client.say msg.reply, "<#{l.nick}> " +
+              "#{l.createdAt.relative()} \"#{l.desc}\""
         else
           console.log "Huh. I don't have any saved links. Sorry, dude."
 
@@ -92,22 +91,17 @@ class web_summary_plugin
                      .replace("\t",'').compact()
       client.say msg.reply_to_nick, "\"#{page_title}\""
       desc = $('meta[name="description"]');
-      desc_txt = ''
 
       if desc.length > 0
         console.log 'has meta'
-        desc_txt = desc.attr('content') \
-          .truncate(250)
         client.say msg.reply_to_nick, "\"#{desc_txt}\""
-      else
-        console.log 'no meta..'
 
       models.web_link.create
         chan: msg.reply
         nick: msg.sending_nick
         url: url
         title: page_title
-        desc: desc_txt
+        desc: msg.text
 
 module.exports =
   plugins: [web_summary_plugin, links_plugin]
