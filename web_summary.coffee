@@ -57,7 +57,11 @@ class links_plugin
         if links? and links.length > 0
           client.say msg.reply, "Most recent links from #{msg.msg}:"
           _.each links, (l) ->
-            client.say msg.reply, "#{l.createdAt.relative()} \"#{l.desc}\""
+            display = if l.desc.indexOf(l.url) == -1
+              "#{l.url} - \"#{l.title}\""
+            else
+              "\"#{l.desc}\""
+            client.say msg.reply, "#{l.createdAt.relative()} #{display}"
         else
           client.say msg.reply, "I haven't seen any links from #{msg.msg}"
     else
@@ -66,8 +70,12 @@ class links_plugin
         if links?
           client.say msg.reply, "Recent links:"
           _.each links, (l) ->
+            display = if l.desc.indexOf(l.url) == -1
+              "#{l.url} - \"#{l.title}\""
+            else
+              "\"#{l.desc}\""
             client.say msg.reply, "<#{l.nick}> " +
-              "#{l.createdAt.relative()} \"#{l.desc}\""
+              "#{l.createdAt.relative()} #{display}"
         else
           console.log "Huh. I don't have any saved links. Sorry, dude."
 
