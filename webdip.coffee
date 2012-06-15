@@ -100,7 +100,7 @@ class webdip_rmdip_plugin
         client.say msg.reply, "Sorry, I'm not tracking any diplomacy games"+
          " named #{short_name}."
 
-webdip_data_by_short_name = (short_name, cb) ->
+webdip_data_by_short_name = (client, short_name, cb) ->
   if short_name == ''
     all_games = models.webdip_game.all().success (games) ->
       names = (_.map games, (g) -> g.short_name).join(', ')
@@ -172,7 +172,7 @@ class webdip_dipcop_plugin
     null
   process: (client, msg) ->
     short_name = msg.msg
-    webdip_data_by_short_name short_name, (data) ->
+    webdip_data_by_short_name client, short_name, (data) ->
       console.log "short_name: '#{data.short_name}'"
       dirtbags = _.filter data.player_data, (pd) ->
         pd.status != "Orders Ready" and pd.status != "No Move"
@@ -195,7 +195,7 @@ class webdip_dip_plugin
     null
   process: (client, msg) ->
     short_name = msg.msg
-    webdip_data_by_short_name short_name, (data) ->
+    webdip_data_by_short_name client, short_name, (data) ->
       console.log "short_name: '#{data.short_name}'"
       client.say msg.reply, "#{data.game_name} - #{data.game_date}, "+
        "#{data.game_phase} - Next: #{data.time_remaining} || "+
