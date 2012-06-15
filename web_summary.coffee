@@ -102,7 +102,7 @@ class web_summary_plugin
 
       if desc.length > 0
         console.log 'has meta'
-        client.say msg.reply_to_nick, "\"#{desc_txt}\""
+        client.say msg.reply_to_nick, "\"#{$(desc[0]).attr('content')}\""
 
       models.web_link.create
         chan: msg.reply
