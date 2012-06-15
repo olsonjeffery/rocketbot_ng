@@ -8,6 +8,7 @@ logging = require 'logging'
 user_data = require 'user_data'
 webdip = require 'webdip'
 topic = require 'topic'
+ronpaul = require 'ronpaul'
 
 plugin_loader =
   init: (options, db) ->
@@ -21,7 +22,8 @@ plugin_loader =
       logging.plugins,
       user_data.plugins,
       webdip.plugins,
-      topic.plugins
+      topic.plugins,
+      ronpaul.plugins
     ])
     # initialize them all..
     @plugins = _.map plugins, (plg) =>
