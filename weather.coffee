@@ -53,7 +53,7 @@ do_weather_lookup = (client, msg, loc) ->
         client.say msg.reply, "Unable to find weather information"+
           " for '#{loc}'"
 
-after_ud_check = (client, msg, ud) ->
+after_ud_check = (client, msg, ud, loc) ->
   if loc == ''
     if ud.weather_loc? and ud.weather_loc != ''
       loc = ud.weather_loc
@@ -83,9 +83,9 @@ class weather_plugin
       if not ud?
         ud = user_data.models.user_data.new_ud msg.sending_nick
         ud.save().success ->
-          after_ud_check client, msg, ud
+          after_ud_check client, msg, ud, loc
       else
-        after_ud_check client, msg, ud
+        after_ud_check client, msg, ud, loc
 
 module.exports =
   plugins: [weather_plugin]
