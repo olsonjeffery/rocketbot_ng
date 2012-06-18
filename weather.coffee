@@ -1,7 +1,8 @@
-scrape = require 'scrape'
 xml2js = require 'xml2js'
 _ = require 'underscore'
-user_data = require 'user_data'
+
+user_data = require './user_data'
+scrape = require './scrape'
 
 parser = new xml2js.Parser();
 

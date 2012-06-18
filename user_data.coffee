@@ -1,5 +1,6 @@
-logging = require 'logging'
 _ = require 'underscore'
+
+logging = require './logging'
 
 models = {}
 

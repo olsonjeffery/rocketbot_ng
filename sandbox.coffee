@@ -1,14 +1,14 @@
 _ = require 'underscore'
 
-weather = require 'weather'
-web_summary = require 'web_summary'
-wikipedia = require 'wikipedia'
-etym = require 'etym'
-logging = require 'logging'
-user_data = require 'user_data'
-webdip = require 'webdip'
-topic = require 'topic'
-ronpaul = require 'ronpaul'
+weather = require './weather'
+web_summary = require './web_summary'
+wikipedia = require './wikipedia'
+etym = require './etym'
+logging = require './logging'
+user_data = require './user_data'
+webdip = require './webdip'
+topic = require './topic'
+ronpaul = require './ronpaul'
 
 Sequelize = require 'sequelize'
 

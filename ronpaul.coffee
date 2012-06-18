@@ -1,4 +1,3 @@
-
 last_truth_telling = null
 
 class paulistine_plugin

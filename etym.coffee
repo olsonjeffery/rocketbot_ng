@@ -1,4 +1,4 @@
-scrape = require 'scrape'
+scrape = require './scrape'
 
 
 class etym_plugin

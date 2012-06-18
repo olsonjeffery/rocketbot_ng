@@ -1,7 +1,8 @@
 _ = require 'underscore'
 jsdom = require 'jsdom'
-scrape = require 'scrape'
 require 'sugar'
+
+scrape = require './scrape'
 
 models = {}
 
