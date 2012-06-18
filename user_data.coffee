@@ -11,7 +11,8 @@ user_data_init = (db) ->
       id: { type: db.Sql.INTEGER, autoIncrement: true, allowNull: false},
       nick: db.Sql.STRING,
       puns: db.Sql.INTEGER,
-      swears: db.Sql.INTEGER
+      swears: db.Sql.INTEGER,
+      weather_loc: db.Sql.STRING
     },
     {
       classMethods: {
@@ -32,6 +33,12 @@ user_data_init = (db) ->
             order: 'swears DESC'
           }).success (entries) ->
             cb entries
+        new_ud: (nick) ->
+          @build
+            nick: nick
+            puns: 0
+            swears: 0
+            weather_loc: ''
       }
     })
   models.user_data.sync()
@@ -44,10 +51,7 @@ punish_nick = (pun_nick, client, reply, frag, is_punish) ->
       frag_msg = "for saying '#{frag}'."
     if ud?
     else
-      ud = models.user_data.build
-        nick: pun_nick
-        puns: 0
-        swears: 0
+      ud = models.user_data.new_ud pun_nick
     if is_punish
       ud.puns += 1
     else if ud.puns > 0
