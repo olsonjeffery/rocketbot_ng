@@ -12,19 +12,28 @@ ronpaul = require './ronpaul'
 
 Sequelize = require 'sequelize'
 
-plugin_loader =
-  init: (options) ->
-    console.log "initializing db..."
+Hook = (require 'tinyhook/hook').Hook
+util = require 'util'
+
+console.log "Running through sandbox.coffee"
+
+SandboxHook = exports.SandboxHook = (hook_options) ->
+  Hook.call this, hook_options
+  @on 'hook::ready', =>
+    console.log "SANDBOX: sandbox hook ready"
+  @on '*::init_sandbox', (bot_options) =>
+    console.log "SANDBOX: initializing db..."
     # set up the db
     sequelize = new Sequelize(
-      options.db.database, options.db.username,
-      options.db.password, {
+      bot_options.db.database, bot_options.db.username,
+      bot_options.db.password, {
         dialect: 'sqlite'
-        storage: options.db.storage
+        storage: bot_options.db.storage
       }
     )
     db = {sequelize: sequelize, Sql: Sequelize}
-    console.log "initializing plugins..."
+
+    console.log "SANDBOX: initializing plugins..."
     # get list of plugins
     plugins = _.flatten([
       web_summary.plugins,
@@ -39,8 +48,19 @@ plugin_loader =
     ])
     # initialize them all..
     @plugins = _.map plugins, (plg) =>
-      new plg(this, options, db)
-  process: (client, msg_type, parsed_msg) ->
+      new plg(this, bot_options, db)
+  @on '*::process_msg', (data) ->
+    { msg_type, parsed_msg } = data
+    client =
+      say: (chan, msg) =>
+        @emit 'bot_say',
+          chan: chan
+          msg: msg
+      send: (cmd, chan, msg) =>
+        @emit 'bot_send',
+          cmd: cmd
+          chan: chan
+          msg: msg
     _.each @plugins, (plg) ->
       if plg.msg_type == msg_type
         match_regex = plg.match_regex()
@@ -57,4 +77,4 @@ plugin_loader =
         else
           console.log "no matching-cmd or match regex..."
 
-module.exports = plugin_loader
+util.inherits SandboxHook, Hook
