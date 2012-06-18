@@ -2,25 +2,18 @@
 _ = require 'underscore'
 irc = require 'irc'
 require 'sugar'
-Sequelize = require 'sequelize'
 
 options = require "options"
-plugin_loader = require 'plugin_loader'
 parse_msg = require 'parse_msg'
+
+Hook = (require 'hook').Hook
+plugin_loader = require 'plugin_loader'
 
 console.log "rocketbot_ng #{options.version} startuping up"
 
 console.log "setting up db connection..."
-# set up the db
-sequelize = new Sequelize(
-  options.db.database, options.db.username,
-  options.db.password, {
-    dialect: 'sqlite'
-    storage: options.db.storage
-  }
-)
 
-plugin_loader.init(options, {sequelize: sequelize, Sql: Sequelize})
+plugin_loader.init(options)
 
 rocketbot = new irc.Client options['irc-server'], options.nick,
   channels: options.channels

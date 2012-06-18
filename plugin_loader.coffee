@@ -10,8 +10,20 @@ webdip = require 'webdip'
 topic = require 'topic'
 ronpaul = require 'ronpaul'
 
+Sequelize = require 'sequelize'
+
 plugin_loader =
-  init: (options, db) ->
+  init: (options) ->
+    console.log "initializing db..."
+    # set up the db
+    sequelize = new Sequelize(
+      options.db.database, options.db.username,
+      options.db.password, {
+        dialect: 'sqlite'
+        storage: options.db.storage
+      }
+    )
+    db = {sequelize: sequelize, Sql: Sequelize}
     console.log "initializing plugins..."
     # get list of plugins
     plugins = _.flatten([
