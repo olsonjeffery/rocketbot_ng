@@ -7,13 +7,13 @@ options = require "options"
 parse_msg = require 'parse_msg'
 
 Hook = (require 'hook').Hook
-plugin_loader = require 'plugin_loader'
+sandbox = require 'sandbox'
 
 console.log "rocketbot_ng #{options.version} startuping up"
 
 console.log "setting up db connection..."
 
-plugin_loader.init(options)
+sandbox.init(options)
 
 rocketbot = new irc.Client options['irc-server'], options.nick,
   channels: options.channels
@@ -29,7 +29,7 @@ rocketbot.addListener "message", (sending_nick, dest_nick, text) ->
     reply_to_nick = if is_channel_msg then dest_nick else sending_nick
     parsed_msg = parse_msg sending_nick, reply_to_nick, options.cmd_prefix,
                            text
-    plugin_loader.process rocketbot, 'message', parsed_msg
+    sandbox.process rocketbot, 'message', parsed_msg
 rocketbot.addListener "topic", (channel, topic, nick, message) ->
   console.log "topic change!"
   parsed_msg =
@@ -37,7 +37,7 @@ rocketbot.addListener "topic", (channel, topic, nick, message) ->
     chan: channel
     nick: nick
     text: topic
-  plugin_loader.process rocketbot, 'topic', parsed_msg
+  sandbox.process rocketbot, 'topic', parsed_msg
 rocketbot.addListener "motd", (motd) ->
   console.log "received MOTD from server"
 rocketbot.addListener "join", (chan, nick, msg) ->
