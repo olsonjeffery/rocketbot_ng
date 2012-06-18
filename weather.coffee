@@ -53,6 +53,21 @@ do_weather_lookup = (client, msg, loc) ->
         client.say msg.reply, "Unable to find weather information"+
           " for '#{loc}'"
 
+after_ud_check = (client, msg, ud) ->
+  if loc == ''
+    if ud.weather_loc? and ud.weather_loc != ''
+      loc = ud.weather_loc
+      found_loc = true
+  else
+    ud.weather_loc = loc
+    ud.save()
+    found_loc = true
+  if found_loc
+    do_weather_lookup client, msg, loc
+  else
+    client.say msg.reply, "Sorry, you need to provide a location"+
+                           " to lookup weather for."
+
 class weather_plugin
   constructor: (plg_ldr, options) ->
   name: 'weather'
@@ -67,20 +82,10 @@ class weather_plugin
     user_data.models.user_data.by_nick msg.sending_nick, (ud) ->
       if not ud?
         ud = user_data.models.user_data.new_ud msg.sending_nick
-        ud.save()
-      if loc == ''
-        if ud.weather_loc? and ud.weather_loc != ''
-          loc = ud.weather_loc
-          found_loc = true
+        ud.save().success ->
+          after_ud_check client, msg, ud
       else
-        ud.weather_loc = loc
-        ud.save()
-        found_loc = true
-      if found_loc
-        do_weather_lookup client, msg, loc
-      else
-        client.say msg.reply, "Sorry, you need to provide a location"+
-                               " to lookup weather for."
+        after_ud_check client, msg, ud
 
 module.exports =
   plugins: [weather_plugin]
