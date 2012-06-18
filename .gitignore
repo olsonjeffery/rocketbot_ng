@@ -21,3 +21,5 @@ npm-debug.log
 *sqlite
 options.coffee
 config.json
+
+/*.js
