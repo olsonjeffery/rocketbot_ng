@@ -1,21 +1,11 @@
+util = require 'util'
+fs = require 'fs'
+require 'sugar'
+
 _ = require 'underscore'
 
-weather = require './weather'
-web_summary = require './web_summary'
-wikipedia = require './wikipedia'
-etym = require './etym'
-logging = require './logging'
-user_data = require './user_data'
-webdip = require './webdip'
-topic = require './topic'
-ronpaul = require './ronpaul'
-
 Sequelize = require 'sequelize'
-
 Hook = (require 'tinyhook/hook').Hook
-util = require 'util'
-
-console.log "Running through sandbox.coffee"
 
 SandboxHook = exports.SandboxHook = (hook_options) ->
   Hook.call this, hook_options
@@ -37,17 +27,18 @@ SandboxHook = exports.SandboxHook = (hook_options) ->
 
     console.log "SANDBOX: initializing plugins..."
     # get list of plugins
-    plugins = _.flatten([
-      web_summary.plugins,
-      weather.plugins,
-      wikipedia.plugins,
-      etym.plugins,
-      logging.plugins,
-      user_data.plugins,
-      webdip.plugins,
-      topic.plugins,
-      ronpaul.plugins
-    ])
+    plugins = []
+    scripts_path = __dirname+"/scripts"
+    console.log "about to read scripts dir.. '#{scripts_path}'"
+    _.each(fs.readdirSync(scripts_path), (f) ->
+      f_path = "#{scripts_path}/#{f.toString()}"
+      if f_path.endsWith ".js"
+        console.log "found script file: #{f_path}"
+        mod = require(f_path)
+        if mod.plugins?
+          _.each mod.plugins, (plg) ->
+            plugins.push plg
+    )
     # initialize them all..
     @plugins = _.map plugins, (plg) =>
       new plg(this, bot_options, db)

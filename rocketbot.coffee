@@ -84,19 +84,19 @@ master.on 'hook::ready', ->
 
   # outbound msgs (to IRC)
   master.on 'bot_say', (data) ->
-    rocketbot.say data.chan, data.msg
+    rocketbot.say data.chan, data.msg.replace('\r', '')
   master.on 'bot_send', (data) ->
-    rocketbot.say data.cmd, data.chan, data.msg
+    rocketbot.send data.cmd, data.chan, data.msg
   master.on '*::bot_say', (data) ->
-    rocketbot.say data.chan, data.msg
+    rocketbot.say data.chan, data.msg.replace('\r', '')
   master.on '*::bot_send', (data) ->
-    rocketbot.say data.cmd, data.chan, data.msg
+    rocketbot.send data.cmd, data.chan, data.msg
 
 # this is an idempotent listener that'll start a sandbox
 # if one hasn't been spawned, or recycle/restart it, otherwise
 master.on 'cycle_sandbox', (data) ->
     console.log "cycling sandbox. running CS compile.."
-    coffee_cmd = "coffee -c ./*.coffee"
+    coffee_cmd = "coffee -c ./scripts/*.coffee"
     compile = child_process.exec coffee_cmd,
       (err, stdout, stderr) ->
          console.log "#{new Date().toString()} -- #{coffee_cmd}"

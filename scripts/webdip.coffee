@@ -1,7 +1,7 @@
 _ = require 'underscore'
 jsdom = require 'jsdom'
 
-scrape = require './scrape'
+scrape = require '../scrape'
 
 models = {}
 webdip_game_initialized = false

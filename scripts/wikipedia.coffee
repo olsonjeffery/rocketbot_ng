@@ -1,6 +1,6 @@
 jsdom = require('jsdom').jsdom
 
-scrape = require './scrape'
+scrape = require '../scrape'
 
 class wikipedia_plugin
   constructor: (plg_ldr, options) ->
