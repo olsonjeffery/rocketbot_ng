@@ -26,10 +26,38 @@ euphemism_init = (db) ->
             limit: 5
           }).success (entries) ->
             cb entries
+        by_desc: (desc, cb) ->
+          @find({
+            where: {desc: desc}
+          }).success (entry) ->
+            cb entry
       }
     })
   models.euphemism.sync()
 
+class cacophemism_plugin
+  constructor: (plg_ldr, options, @db) ->
+    if not euphemism_initialized
+      euphemism_init @db
+  name: 'euphemism'
+  msg_type: 'message'
+  version: '1'
+  commands: ['cacophemism', 'caco']
+  match_regex: () ->
+    null
+  process: (client, msg) ->
+    euph = msg.msg.compact()
+    if euph == ''
+      client.say msg.reply, "Sorry, you gotta actually give me something "+
+        "to remove."
+    else
+      models.euphemism.by_desc euph, (e) ->
+        if e?
+          e.destroy()
+          client.say msg.reply, "Ok, \"#{euph}\" removed"
+        else
+          client.say msg.reply, "Sorry, I don't have any euphemisms "+
+            "matching \"#{euph}\""
 class euphemism_plugin
   constructor: (plg_ldr, options, @db) ->
     if not euphemism_initialized
@@ -81,5 +109,5 @@ class recent_euphemisms_plugin
            "#{e.createdAt.relative()}."
 
 module.exports =
-  plugins: [euphemism_plugin, recent_euphemisms_plugin]
+  plugins: [euphemism_plugin, recent_euphemisms_plugin, cacophemism_plugin]
   models: models
