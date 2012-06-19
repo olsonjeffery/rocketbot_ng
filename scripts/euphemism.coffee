@@ -69,7 +69,15 @@ class euphemism_plugin
   match_regex: () ->
     null
   process: (client, msg) ->
-    euph = msg.msg.compact().replace(/^"/g,'').replace(/"$/,'')
+    euph = msg.msg.compact()
+    if euph.indexOf('"') != -1
+      client.say msg.reply, "Please remove double-quotes from your "+
+        "euphemism. They are offensive to my eyes."
+      return null
+    if euph.indexOf("'") != -1
+      client.say msg.reply, "This isn't a game! Get rid of those single-"+
+        "quotes, citizen."
+      return null
     if euph == ''
       client.say msg.reply, "Sorry, you gotta actually give me something "+
         "to store."
