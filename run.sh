@@ -1,3 +1,2 @@
 #/bin/sh
-coffee -c ./*.coffee
-node rocketbot.js
+coffee -c ./*.coffee && node rocketbot.js

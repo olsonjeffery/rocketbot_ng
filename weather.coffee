@@ -25,7 +25,7 @@ do_weather_lookup = (client, msg, loc) ->
                         .data
           wind = result.weather.current_conditions.wind_condition['@'] \
                         .data
-          client.say msg.reply, "Weather for #{loc}"
+          client.say msg.reply, "Weather for #{loc}:"
           client.say msg.reply, "Condition: #{condition} "+
               "Temp: #{temp}F (#{temp_c}C)"
           client.say msg.reply, "#{humidity} #{wind}"
@@ -33,7 +33,7 @@ do_weather_lookup = (client, msg, loc) ->
         else
           # forecast
           loc = result.weather.forecast_information.city['@'].data
-          client.say msg.reply, "Forecast for #{loc}"
+          client.say msg.reply, "Forecast for #{loc}:"
           first = true
           forecast = _.map result.weather.forecast_conditions, (fc) ->
             day = if first

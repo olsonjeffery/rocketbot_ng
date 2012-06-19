@@ -21,7 +21,9 @@ SandboxHook = exports.SandboxHook = (hook_options) ->
   Hook.call this, hook_options
   @on 'hook::ready', =>
     console.log "SANDBOX: sandbox hook ready"
+    @emit "sandbox_started", {}
   @on '*::init_sandbox', (bot_options) =>
+    @bot_options = bot_options
     console.log "SANDBOX: initializing db..."
     # set up the db
     sequelize = new Sequelize(
@@ -49,6 +51,7 @@ SandboxHook = exports.SandboxHook = (hook_options) ->
     # initialize them all..
     @plugins = _.map plugins, (plg) =>
       new plg(this, bot_options, db)
+    @emit 'sandbox_active', {}
   @on '*::process_msg', (data) ->
     { msg_type, parsed_msg } = data
     client =
@@ -61,7 +64,7 @@ SandboxHook = exports.SandboxHook = (hook_options) ->
           cmd: cmd
           chan: chan
           msg: msg
-    _.each @plugins, (plg) ->
+    _.each @plugins, (plg) =>
       if plg.msg_type == msg_type
         match_regex = plg.match_regex()
         if parsed_msg.has_command and plg.commands.length > 0
@@ -76,5 +79,8 @@ SandboxHook = exports.SandboxHook = (hook_options) ->
           plg.process client, parsed_msg
         else
           console.log "no matching-cmd or match regex..."
+  @on '*::recycle_sandbox', =>
+    console.log "recycling sandbox!"
+    @stop()
 
 util.inherits SandboxHook, Hook
