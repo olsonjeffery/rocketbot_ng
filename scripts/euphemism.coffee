@@ -69,7 +69,7 @@ class euphemism_plugin
   match_regex: () ->
     null
   process: (client, msg) ->
-    euph = msg.msg.compact()
+    euph = msg.msg.compact().replace("\"",'')
     if euph == ''
       client.say msg.reply, "Sorry, you gotta actually give me something "+
         "to store."
