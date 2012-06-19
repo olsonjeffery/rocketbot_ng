@@ -103,9 +103,12 @@ class webdip_rmdip_plugin
 
 webdip_data_by_short_name = (client, msg, short_name, cb) ->
   if short_name == ''
-    all_games = models.webdip_game.all().success (games) ->
+    models.webdip_game.all().success (games) ->
       names = (_.map games, (g) -> g.short_name).join(', ')
-      client.say msg.reply, "Diplomacy games that I'm following: #{names}"
+      if games.length == 1
+        webdip_data_by_short_name client, msg, games.first().short_name, cb
+      else
+        client.say msg.reply, "Diplomacy games that I'm following: #{names}"
     return null
   models.webdip_game.by_short_name short_name, (g) ->
     if g?
