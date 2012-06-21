@@ -14,7 +14,11 @@ recycle =
           master.emit 'cycle_sandbox', {chan: msg.reply}
         else
           client.say msg.reply, "Only admins can recycle the sandbox."
+docs =
+  name: 'docs'
+  process: (client, master, options, msg) ->
+    master.emit 'process_docs', msg
 
 module.exports = [
-  recycle
+  recycle, docs
 ]

@@ -3,13 +3,20 @@ jsdom = require('jsdom').jsdom
 scrape = require '../scrape'
 
 class wikipedia_plugin
-  constructor: (plg_ldr, options) ->
+  constructor: (plg_ldr, @options) ->
   name: 'wikipedia'
   msg_type: 'message'
   version: '1'
   commands: [ 'wiki' ]
   match_regex: ->
     null
+  doc_name: 'wikipedia'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}wiki <TERM>
+    INFO: Search en.wikipedia.org for the provided <TERM>.
+          It's rather finnicky.
+    """
   process: (client, msg) ->
     page = msg.msg.replace(' ', '%20')
     url = "http://en.wikipedia.org/w/api.php?format=json&action=parse"+

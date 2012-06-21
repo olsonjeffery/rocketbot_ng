@@ -66,5 +66,29 @@ SandboxHook = exports.SandboxHook = (hook_options) ->
   @on '*::recycle_sandbox', =>
     console.log "recycling sandbox!"
     @stop()
+  @on '*::process_docs', (msg) =>
+    client = rb_util.hook_client this
+    topic = msg.msg.compact()
+    if topic == ''
+      topics = _.map((_.filter @plugins, (plg) -> plg.docs?), (plg) ->
+        "'#{plg.doc_name}'"
+      ).join(', ')
+      if topics == ''
+        client.say msg.sending_nick, "I don't have any docs, sorry."
+      else
+        client.say msg.sending_nick, "I have documentation on the "+
+        "following topics: #{topics}"
+    else
+      plg = _.detect(@plugins, (plg) ->
+        plg.doc_name? and plg.doc_name == topic)
+      if plg?
+        client.say msg.sending_nick, "Documentation for #{topic}:"
+        _.each plg.docs().split('\n'), (line) ->
+          client.say msg.reply, line.compact()
+      else
+        client.say msg.reply, "Sorry, no docs for '#{topic}'"
+
+
+
 
 util.inherits SandboxHook, Hook
