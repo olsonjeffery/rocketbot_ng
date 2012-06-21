@@ -40,7 +40,7 @@ class topic_logger_plugin
   constructor: (plg_ldr, @options, @db) ->
     if not topic_info_initialized
       topic_info_init @db
-  name: 'topic logger'
+  name: 'topic_logger'
   msg_type: 'topic'
   version: '1'
   commands: []
@@ -98,7 +98,7 @@ class recent_topics_plugin
   constructor: (@options, @db) ->
     if not topic_info_initialized
       topic_info_init @db
-  name: 'recent topics'
+  name: 'recent_topics'
   msg_type: 'message'
   version: '1'
   commands: ['topics']

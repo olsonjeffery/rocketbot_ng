@@ -19,6 +19,18 @@ docs =
   process: (client, master, options, msg) ->
     master.emit 'process_docs', msg
 
-module.exports = [
-  recycle, docs
-]
+plugins =
+  names: ['plugins', 'enable', 'disable']
+  process: (client, master, options, msg) ->
+    rb_util.admin_only msg.sending_nick, client, options, ->
+      if msg.command == 'plugins'
+        master.emit 'process_plugins_list', msg
+      else if msg.command == 'enable'
+        console.log "got enable request for '#{msg.command}'"
+        master.emit 'process_plugin_enable', msg
+      else
+        console.log "got disable request for '#{msg.command}'"
+        master.emit 'process_plugin_disable', msg
+
+module.exports =
+  [recycle, docs, plugins]

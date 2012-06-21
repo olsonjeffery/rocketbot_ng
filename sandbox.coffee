@@ -43,13 +43,15 @@ SandboxHook = exports.SandboxHook = (hook_options) ->
     )
     # initialize them all..
     @plugins = _.map plugins, (plg) =>
-      new plg(@bot_options, db)
+      nPlg = new plg(@bot_options, db)
+      nPlg.active = true
+      nPlg
     @emit 'sandbox_active', {}
   @on '*::process_msg', (data) =>
     { msg_type, parsed_msg } = data
     client = rb_util.hook_client this
     _.each @plugins, (plg) =>
-      if plg.msg_type == msg_type
+      if plg.msg_type == msg_type and plg.active
         match_regex = plg.match_regex()
         if parsed_msg.has_command and plg.commands.length > 0
           console.log "incoming msg has_command #{parsed_msg.command}"
@@ -70,8 +72,9 @@ SandboxHook = exports.SandboxHook = (hook_options) ->
     client = rb_util.hook_client this
     topic = msg.msg.compact()
     if topic == ''
-      topics = _.map((_.filter @plugins, (plg) -> plg.docs?), (plg) ->
-        "'#{plg.doc_name}'"
+      topics = _.map((_.filter @plugins, (plg) -> plg.active and plg.docs?),
+        (plg) ->
+          "'#{plg.doc_name}'"
       ).join(', ')
       if topics == ''
         client.say msg.sending_nick, "I don't have any docs, sorry."
@@ -89,8 +92,39 @@ SandboxHook = exports.SandboxHook = (hook_options) ->
           client.say msg.reply, line.compact()
       else
         client.say msg.reply, "Sorry, no docs for '#{topic}'"
-
-
-
+  @on '*::process_plugins_list', (msg) =>
+    client = rb_util.hook_client this
+    _.each @plugins, (plg) ->
+      activity = if plg.active then '' else " ##DISABLED##"
+      version = if plg.version? then plg.version else 0
+      client.say msg.reply, "#{plg.name} (#{version})#{activity}"
+  @on '*::process_plugin_enable', (msg) =>
+    console.log "plugin enable.."
+    client = rb_util.hook_client this
+    target_name = msg.msg.compact()
+    target_plg = _.detect(@plugins, (plg) -> plg.name == target_name)
+    if target_plg?
+      if target_plg.active
+        client.say msg.reply, "#{target_name} is already enabled."
+      else
+        target_plg.active = true
+        client.say msg.reply, "#{target_name} enabled."
+    else
+      client.say msg.reply, "I don't have a plugin loaded named "+
+         "'#{target_name}'."
+  @on '*::process_plugin_disable', (msg) =>
+    console.log "plugin disable.."
+    client = rb_util.hook_client this
+    target_name = msg.msg.compact()
+    target_plg = _.detect(@plugins, (plg) -> plg.name == target_name)
+    if target_plg?
+      if not target_plg.active
+        client.say msg.reply, "#{target_name} is already disabled."
+      else
+        target_plg.active = false
+        client.say msg.reply, "#{target_name} disabled."
+    else
+      client.say msg.reply, "I don't have a plugin loaded named "+
+         "'#{target_name}'."
 
 util.inherits SandboxHook, Hook

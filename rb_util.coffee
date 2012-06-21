@@ -23,3 +23,9 @@ module.exports =
     client.whois nick, (info) ->
       is_identified = info.account?
       cb (is_identified and (_.detect(options.admins, (n) -> n == nick))?)
+  admin_only: (nick, client, options, cb) ->
+    @is_admin nick, client, options, (user_is_admin) ->
+      if user_is_admin
+        cb()
+      else
+        client.say nick, "Only bot admins can invoke this action."
