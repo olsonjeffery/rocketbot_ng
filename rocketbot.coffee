@@ -88,7 +88,7 @@ master.on 'hook::ready', ->
 
   # outbound msgs (to IRC)
   master.on 'bot_say', (data) ->
-    rocketbot.say data.chan, data.msg.replace('\r', '')
+    rocketbot.say data.chan, data.msg.replace(/\r/g, '').replace(/\n/g,'')
   master.on 'bot_send', (data) ->
     rocketbot.send data.cmd, data.chan, data.msg
   master.on 'bot_whois', (data) ->
@@ -97,7 +97,7 @@ master.on 'hook::ready', ->
       console.log "got WHOIS resp from node-irc"
       master.emit 'bot_whois_resp', info
   master.on '*::bot_say', (data) ->
-    rocketbot.say data.chan, data.msg.replace('\r', '')
+    rocketbot.say data.chan, data.msg.replace(/\r/g, '').replace(/\n/g,'')
   master.on '*::bot_send', (data) ->
     rocketbot.send data.cmd, data.chan, data.msg
   master.on '*::bot_whois', (data) ->

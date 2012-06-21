@@ -32,7 +32,9 @@ class ud_plugin
           client.say msg.reply, "Sorry, '#{raw_term}' isn't defined yet."
           return null
         raw_stuff = $($('.definition')[0]).text()
-        stuff = raw_stuff.replace('\r', '. ').truncate(400)
+        stuff = raw_stuff.replace(/\r/g, '. ').replace(/\n/g,'') \
+          .trim().normalize() \
+          .truncate(400)
         console.log "match found, about to say: #{stuff}"
         if raw_stuff.length >= 400
           client.say msg.reply, "You can, um, \"learn\" more at: "+
