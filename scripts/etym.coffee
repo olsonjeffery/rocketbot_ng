@@ -1,14 +1,19 @@
 scrape = require '../scrape'
 
-
 class etym_plugin
-  constructor: (plg_ldr, options) ->
+  constructor: (@options) ->
   name: 'etym'
   msg_type: 'message'
   version: '1'
   commands: [ 'etym' ]
   match_regex: ->
     null
+  doc_name: 'etym'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}etym <TERM>
+    INFO: Search etymologyonline.com for the provided <TERM>.
+    """
   process: (client, msg) ->
     url = "http://www.etymonline.com/index.php?allowed_in_frame=0&search=#{msg.msg.compact().replace(' ', '%20')}&searchmode=none"
     scrape.single url, (body, window) ->

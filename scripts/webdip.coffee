@@ -31,7 +31,7 @@ webdip_game_init = (db) ->
 
 webdip_url = "http://www.webdiplomacy.net/board.php?gameID="
 class webdip_newdip_plugin
-  constructor: (plg_ldr, @options, @db) ->
+  constructor: (@options, @db) ->
     if not webdip_game_initialized
       webdip_game_init @db
   name: 'newdip'
@@ -40,6 +40,13 @@ class webdip_newdip_plugin
   commands: ['newdip']
   match_regex: () ->
     null
+  doc_name: 'newdip'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}dipcop <GAME ID> <SHORT NAME>
+    INFO: Begin tracking a www.webdiplomacy.net game by it's <GAME ID>,
+          recalling it for further use by a more friendly <SHORT NAME>.
+    """
   process: (client, msg) ->
     inputs = msg.msg.split(' ')
     if inputs.length != 2
@@ -81,7 +88,7 @@ class webdip_newdip_plugin
                   "matching #{game_id}"
 
 class webdip_rmdip_plugin
-  constructor: (plg_ldr, @options, @db) ->
+  constructor: (@options, @db) ->
     if not webdip_game_initialized
       webdip_game_init @db
   name: 'rmdip'
@@ -90,6 +97,13 @@ class webdip_rmdip_plugin
   commands: ['rmdip']
   match_regex: () ->
     null
+  doc_name: 'rmdip'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}rmdip <SHORT NAME>
+    INFO: Remoe a diplomacy game from tracking by it's recorded
+          <SHORT_NAME>.
+    """
   process: (client, msg) ->
     short_name = msg.msg
     models.webdip_game.by_short_name short_name, (g) ->
@@ -165,7 +179,7 @@ webdip_data_by_short_name = (client, msg, short_name, cb) ->
        " named #{short_name}."
 
 class webdip_dipcop_plugin
-  constructor: (plg_ldr, @options, @db) ->
+  constructor: (@options, @db) ->
     if not webdip_game_initialized
       webdip_game_init @db
   name: 'dipcop'
@@ -174,6 +188,14 @@ class webdip_dipcop_plugin
   commands: ['dipcop']
   match_regex: () ->
     null
+  doc_name: 'dipcop'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}dipcop <SHORT NAME>
+    SYNONYMS: dipcop, electroboy
+    INFO: Display a list of dirtbags who haven't yet Readed their
+          diplomacy orders.
+    """
   process: (client, msg) ->
     short_name = msg.msg
     webdip_data_by_short_name client, msg, short_name, (data) ->
@@ -188,7 +210,7 @@ class webdip_dipcop_plugin
         "Degenerate scum of #{data.game_name}: #{player_list}"
 
 class webdip_dip_plugin
-  constructor: (plg_ldr, @options, @db) ->
+  constructor: (@options, @db) ->
     if not webdip_game_initialized
       webdip_game_init @db
   name: 'dip'
@@ -197,6 +219,14 @@ class webdip_dip_plugin
   commands: ['dip']
   match_regex: () ->
     null
+  doc_name: 'dip'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}dip <SHORT NAME>
+    INFO: Get a summary of the current state of a given webdiplomacy.net
+          game (added previously via `newdip`), by its provided
+          <SHORT NAME>.
+    """
   process: (client, msg) ->
     short_name = msg.msg
     webdip_data_by_short_name client, msg, short_name, (data) ->

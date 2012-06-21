@@ -1,13 +1,21 @@
 last_truth_telling = null
 
 class paulistine_plugin
-  constructor: (plg_ldr, options, @db) ->
+  constructor: (@options, @db) ->
   name: 'paulistine'
   msg_type: 'message'
   version: '1'
   commands: ['paulistine']
   match_regex: () ->
     null
+  doc_name: 'paulistine'
+  docs: ->
+    """
+    Get educated on matters of great import to the American experiment.
+    But: BEWARE, gentle patriot! Too much TRUTH can be dangerous,
+    and should be administered only according to the strict guidelines
+    set forth by Dr. Paul.
+    """
   process: (client, msg) ->
     an_hour_ago = Date.create('1 hour ago')
     if last_truth_telling == null or an_hour_ago > last_truth_telling

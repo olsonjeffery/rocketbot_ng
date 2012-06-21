@@ -3,7 +3,7 @@ child_process = require 'child_process'
 rb_util = require './rb_util'
 
 recycle =
-  name: 'recycle'
+  names: ['recycle']
   process: (client, master, options, msg) ->
     console.log 'about to send WHOIS..'
     rb_util.is_admin msg.sending_nick,
@@ -15,7 +15,7 @@ recycle =
         else
           client.say msg.reply, "Only admins can recycle the sandbox."
 docs =
-  name: 'docs'
+  names: ['help', 'docs']
   process: (client, master, options, msg) ->
     master.emit 'process_docs', msg
 

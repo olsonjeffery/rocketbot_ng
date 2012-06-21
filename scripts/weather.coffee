@@ -70,13 +70,25 @@ after_ud_check = (client, msg, ud, loc) ->
                            " to lookup weather for."
 
 class weather_plugin
-  constructor: (plg_ldr, options) ->
+  constructor: (@options) ->
   name: 'weather'
   msg_type: 'message'
   version: '1'
   commands: [ 'weather', 'forecast' ]
   match_regex: ->
     null
+  doc_name: 'weather'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}weather <LOCATION>
+    INFO: Lookup current conditions for a specific <LOCATION>. If no
+          <LOCATION> is provided, we try to find a saved location for
+          your nick. Otherwise, we save the provided <LOCATION> for
+          future use.
+    SYNTAX: #{@options.cmd_prefix}forecast <LOCATION>
+    INFO: Same as above, but provides forecast information instead
+          of current conditions.
+    """
   process: (client, msg) ->
     loc = msg.msg.compact()
     found_loc = false

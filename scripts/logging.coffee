@@ -48,13 +48,20 @@ log_entry_init = (db) ->
   models.log_entry.sync()
 
 class seen_plugin
-  constructor: (plg_ldr, options, @db) ->
+  constructor: (@options, @db) ->
   name: 'seen'
   msg_type: 'message'
   version: '1'
   commands: ['seen']
   match_regex: ->
     null
+  doc_name: 'seen'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}seen <NICK>
+    INFO: Show when/where <NICK> last spoke and what they said,
+          if the bot has heard them at all.
+    """
   process: (client, msg) ->
     latest = models.log_entry.latest_entry_for msg.msg, (entry) ->
       if entry?
@@ -64,7 +71,7 @@ class seen_plugin
         client.say msg.reply, "I haven't heard anything from #{msg.msg}"
 
 class logging_plugin
-  constructor: (plg_ldr, options, @db) ->
+  constructor: (@options, @db) ->
     log_entry_init @db
   name: 'logging'
   msg_type: 'message'

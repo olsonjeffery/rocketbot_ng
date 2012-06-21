@@ -120,7 +120,7 @@ punshe_common = (client, msg, is_punish) ->
       client.say msg.reply, "I don't even know who #{pun_nick} is, sorry."
 
 class punjar_plugin
-  constructor: (plg_ldr, options, @db) ->
+  constructor: (@options, @db) ->
     if not user_data_initialized
       user_data_init @db
   name: 'punjar'
@@ -129,6 +129,13 @@ class punjar_plugin
   commands: ['punjar']
   match_regex: () ->
     null
+  doc_name: 'punjar'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}punjar <NICK>
+    INFO: Get either punjar info on the top puntheles, or pundebt info
+          on a specific <NICK>.
+    """
   process: (client, msg) ->
     if msg.msg? and msg.msg.length > 0
       models.user_data.by_nick msg.msg, (ud) ->
@@ -146,7 +153,7 @@ class punjar_plugin
                "$#{(e.puns *.25).format(2)}"
           ctr+=1
 class shenanigans_plugin
-  constructor: (plg_ldr, options, @db) ->
+  constructor: (@options, @db) ->
     if not user_data_initialized
       user_data_init @db
   name: 'shenanigans'
@@ -155,11 +162,18 @@ class shenanigans_plugin
   commands: ['shenanigans']
   match_regex: () ->
     null
+  doc_name: 'shenanigans'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}shenanigans <NICK> <PUN FRAGMENT>
+    INFO: Un-punish a specific <NICK>, optionally provide a specific
+          <PUN FRAGMENT> to be de-attributed as a pun.
+    """
   process: (client, msg) ->
     punshe_common client, msg, false
 
 class puns_plugin
-  constructor: (plg_ldr, options, @db) ->
+  constructor: (@options, @db) ->
     if not user_data_initialized
       user_data_init @db
   name: 'recent puns'
@@ -168,6 +182,13 @@ class puns_plugin
   commands: ['puns']
   match_regex: () ->
     null
+  doc_name: 'puns'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}puns <NICK>
+    INFO: See a list of recent, attributed puns. Optionally provide a
+          <NICK> to just see recent puns from them.
+    """
   process: (client, msg) ->
     if msg.msg? and msg.msg.length > 0
       logging.models.log_entry.recent_puns_from msg.msg, (entries) ->
@@ -190,7 +211,7 @@ class puns_plugin
           client.say msg.reply, "No recorded puns logged, sorry."
 
 class punish_plugin
-  constructor: (plg_ldr, options, @db) ->
+  constructor: (@options, @db) ->
     if not user_data_initialized
       user_data_init @db
   name: 'punish'
@@ -199,6 +220,14 @@ class punish_plugin
   commands: ['pun', 'punish']
   match_regex: () ->
     null
+  doc_name: 'punish'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}punish <NICK> <PUN FRAGMENT>
+    SYNONYMS: punish, pun
+    INFO: Punish a specific <NICK>, optionally provide a specific
+          <PUN FRAGMENT> to be attributed as a pun.
+    """
   process: (client, msg) ->
     punshe_common client, msg, true
 

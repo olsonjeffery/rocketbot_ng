@@ -36,15 +36,25 @@ euphemism_init = (db) ->
   models.euphemism.sync()
 
 class cacophemism_plugin
-  constructor: (plg_ldr, options, @db) ->
+  constructor: (@options, @db) ->
     if not euphemism_initialized
       euphemism_init @db
-  name: 'euphemism'
+  name: 'cacophemism'
   msg_type: 'message'
   version: '1'
   commands: ['cacophemism', 'caco']
   match_regex: () ->
     null
+  doc_name: 'cacophemism'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}cacophemism <PHRASE>
+    SYNONYMS: cacophemism, caco
+    INFO: Add the provided PHRASE to the bot's list of euphemisms.
+          Current doesn't accept phrases that contain quotes (single or
+          double), as they appear to confound the ability to display
+          them later.
+    """
   process: (client, msg) ->
     euph = msg.msg.compact()
     if euph == ''
@@ -59,7 +69,7 @@ class cacophemism_plugin
           client.say msg.reply, "Sorry, I don't have any euphemisms "+
             "matching \"#{euph}\""
 class euphemism_plugin
-  constructor: (plg_ldr, options, @db) ->
+  constructor: (@options, @db) ->
     if not euphemism_initialized
       euphemism_init @db
   name: 'euphemism'
@@ -68,6 +78,16 @@ class euphemism_plugin
   commands: ['euphemism', 'euph']
   match_regex: () ->
     null
+  doc_name: 'euphemism'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}euphemism <PHRASE>
+    SYNONYMS: euphemism, euph
+    INFO: Add the provided PHRASE to the bot's list of euphemisms.
+          Current doesn't accept phrases that contain quotes (single or
+          double), as they appear to confound the ability to display
+          them later.
+    """
   process: (client, msg) ->
     euph = msg.msg.compact()
     if euph.indexOf('"') != -1
@@ -88,15 +108,23 @@ class euphemism_plugin
         desc: euph
       client.say msg.reply, "Euphemism \"#{euph}\" added."
 class recent_euphemisms_plugin
-  constructor: (plg_ldr, options, @db) ->
+  constructor: (@options, @db) ->
     if not euphemism_initialized
       euphemism_init @db
-  name: 'recent euphemisms'
+  name: 'euphemisms'
   msg_type: 'message'
   version: '1'
   commands: ['euphemisms', 'euphs']
   match_regex: () ->
     null
+  doc_name: 'euphemisms'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}euphemism <NICK>
+    SYNONYMS: euphemisms, euphs
+    INFO: Display a list of the recent euphemisms, optionally limiting the
+          result list to euphemisms logged by a specific nickname.
+    """
   process: (client, msg) ->
     name = msg.msg.compact()
     if name == ''

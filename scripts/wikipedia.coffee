@@ -3,7 +3,7 @@ jsdom = require('jsdom').jsdom
 scrape = require '../scrape'
 
 class wikipedia_plugin
-  constructor: (plg_ldr, @options) ->
+  constructor: (@options) ->
   name: 'wikipedia'
   msg_type: 'message'
   version: '1'

@@ -2,13 +2,20 @@ scrape = require '../scrape'
 
 
 class ud_plugin
-  constructor: (plg_ldr, @options, @db) ->
+  constructor: (@options, @db) ->
   name: 'ud'
   msg_type: 'message'
   version: '1'
   commands: ['ud']
   match_regex: () ->
     null
+  doc_name: 'ud'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}ud <TOPIC>
+    INFO: Search urbandictionary.com for 'information' on some
+          godawful topic.
+    """
   process: (client, msg) ->
     raw_term = msg.msg.compact()
     term = raw_term.replace(" ", "+")

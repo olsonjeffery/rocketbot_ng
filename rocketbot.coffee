@@ -25,7 +25,9 @@ msg_queue = []
 
 process_message = (master, parsed_msg) ->
   console.log "in process_message"
-  spc = _.detect special_cmds, (c) -> c.name == parsed_msg.command
+  spc = _.detect special_cmds, (c) ->
+    _.detect c.names, (n) ->
+      n == parsed_msg.command
   client = rb_util.hook_client master
   if spc?
     spc.process client, master, options, parsed_msg

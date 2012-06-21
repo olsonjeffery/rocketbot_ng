@@ -61,13 +61,20 @@ class topic_logger_plugin
 
 
 class topic_plugin
-  constructor: (plg_ldr, options, @db) ->
+  constructor: (@options, @db) ->
     if not topic_info_initialized
       topic_info_init @db
   name: 'topic'
   msg_type: 'message'
   version: '1'
   commands: ['topic']
+  doc_name: 'topic'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}topic <TOPIC>
+    INFO: Sets the current channel topic to the one provided and records
+          it for future generations.
+    """
   match_regex: () ->
     null
   process: (client, msg) ->
@@ -88,7 +95,7 @@ class topic_plugin
       client.send "TOPIC", msg.reply, new_topic
 
 class recent_topics_plugin
-  constructor: (plg_ldr, options, @db) ->
+  constructor: (@options, @db) ->
     if not topic_info_initialized
       topic_info_init @db
   name: 'recent topics'
@@ -97,6 +104,13 @@ class recent_topics_plugin
   commands: ['topics']
   match_regex: () ->
     null
+  doc_name: 'topics'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}topics <TOPIC>
+    INFO: Sets the current channel topic to the one provided and records
+          it for future generations.
+    """
   process: (client, msg) ->
     if msg.reply == msg.sending_nick
       client.say msg.reply, "Sorry, only works in chan."

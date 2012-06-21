@@ -41,15 +41,23 @@ url_god_regex =
   /((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)/i
 
 class links_plugin
-  constructor: (plg_ldr, options, @db) ->
+  constructor: (@options, @db) ->
     if not web_link_initialized
       web_link_init @db
   name: 'links'
   msg_type: 'message'
   version: '1'
-  commands: ['links']
+  commands: ['links', 'urls']
   match_regex: () ->
     null
+  doc_name: 'urls'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}urls <NICK>
+    SYNONYMS: urls, links
+    INFO: Show recent links that the bot has recorded. Optionally provide
+          a <NICK> to narrow the list.
+    """
   process: (client, msg) ->
     console.log "msg.msg : #{msg.msg}"
     if msg.msg != ''
@@ -81,10 +89,10 @@ class links_plugin
           console.log "Huh. I don't have any saved links. Sorry, dude."
 
 class web_summary_plugin
-  constructor: (plg_ldr, options, @db) ->
+  constructor: (@options, @db) ->
     if not web_link_initialized
       web_link_init @db
-  name: 'url summary'
+  name: 'web_summary'
   msg_type: 'message'
   version: '1'
   commands: []

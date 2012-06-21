@@ -43,7 +43,7 @@ SandboxHook = exports.SandboxHook = (hook_options) ->
     )
     # initialize them all..
     @plugins = _.map plugins, (plg) =>
-      new plg(this, bot_options, db)
+      new plg(@bot_options, db)
     @emit 'sandbox_active', {}
   @on '*::process_msg', (data) =>
     { msg_type, parsed_msg } = data
@@ -78,6 +78,8 @@ SandboxHook = exports.SandboxHook = (hook_options) ->
       else
         client.say msg.sending_nick, "I have documentation on the "+
         "following topics: #{topics}"
+        client.say msg.sending_nick, "Type `#{@bot_options.cmd_prefix}"+
+          "help <TOPIC>` to learn about a specific topic."
     else
       plg = _.detect(@plugins, (plg) ->
         plg.doc_name? and plg.doc_name == topic)
