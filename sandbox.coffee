@@ -7,6 +7,8 @@ _ = require 'underscore'
 Sequelize = require 'sequelize'
 Hook = (require 'tinyhook/hook').Hook
 
+rb_util = require './rb_util'
+
 SandboxHook = exports.SandboxHook = (hook_options) ->
   Hook.call this, hook_options
   @on 'hook::ready', =>
@@ -43,18 +45,9 @@ SandboxHook = exports.SandboxHook = (hook_options) ->
     @plugins = _.map plugins, (plg) =>
       new plg(this, bot_options, db)
     @emit 'sandbox_active', {}
-  @on '*::process_msg', (data) ->
+  @on '*::process_msg', (data) =>
     { msg_type, parsed_msg } = data
-    client =
-      say: (chan, msg) =>
-        @emit 'bot_say',
-          chan: chan
-          msg: msg
-      send: (cmd, chan, msg) =>
-        @emit 'bot_send',
-          cmd: cmd
-          chan: chan
-          msg: msg
+    client = rb_util.hook_client this
     _.each @plugins, (plg) =>
       if plg.msg_type == msg_type
         match_regex = plg.match_regex()

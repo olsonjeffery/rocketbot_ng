@@ -3,18 +3,19 @@ child_process = require 'child_process'
 _ = require 'underscore'
 irc = require 'irc'
 require 'sugar'
+Hook = (require 'tinyhook/hook').Hook
 
 options = require './options'
 parse_msg = require './parse_msg'
 special_cmds = require './special_cmds'
-
-Hook = (require 'tinyhook/hook').Hook
+rb_util = require './rb_util'
 
 console.log "rocketbot_ng #{options.version} startuping up"
 master = new Hook
   name: 'master'
   port: options.hook_port
   silent: false
+master.is_master = true
 master.start()
 
 sandbox_spawned = false
@@ -25,8 +26,9 @@ msg_queue = []
 process_message = (master, parsed_msg) ->
   console.log "in process_message"
   spc = _.detect special_cmds, (c) -> c.name == parsed_msg.command
+  client = rb_util.hook_client master
   if spc?
-    spc.process master, options, parsed_msg
+    spc.process client, master, options, parsed_msg
   else
     master.emit 'process_msg',
       msg_type: 'message'
@@ -87,10 +89,19 @@ master.on 'hook::ready', ->
     rocketbot.say data.chan, data.msg.replace('\r', '')
   master.on 'bot_send', (data) ->
     rocketbot.send data.cmd, data.chan, data.msg
+  master.on 'bot_whois', (data) ->
+    console.log "going to do WHOIS for '#{data}'"
+    rocketbot.whois data, (info) ->
+      console.log "got WHOIS resp from node-irc"
+      master.emit 'bot_whois_resp', info
   master.on '*::bot_say', (data) ->
     rocketbot.say data.chan, data.msg.replace('\r', '')
   master.on '*::bot_send', (data) ->
     rocketbot.send data.cmd, data.chan, data.msg
+  master.on '*::bot_whois', (data) ->
+    console.log "going to do WHOIS for '#{data}'"
+    rocketbot.whois data, (info) ->
+      master.emit 'bot_whois_resp', info
 
 # this is an idempotent listener that'll start a sandbox
 # if one hasn't been spawned, or recycle/restart it, otherwise
@@ -124,7 +135,7 @@ master.on 'cycle_sandbox', (data) ->
         else
           sandbox_spawned = true
           console.log "spawning sandbox"
-          master.sandbox_hook = master.spawn([{
+          master.spawn([{
                 src:__dirname+"/sandbox.js"
                 name:'sandbox'
                 port:options.hook_port
