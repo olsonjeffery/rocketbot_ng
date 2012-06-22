@@ -24,8 +24,7 @@ class ud_plugin
     else
       ud_search_url =
         "http://www.urbandictionary.com/define.php?term=#{term}"
-      scrape.single ud_search_url, (body, window) ->
-        $ = require('jquery').create(window)
+      scrape.jq ud_search_url, ($) ->
         console.log "checking if exists"
         if $('.definition').length == 0
           console.log "no matching ud term found"

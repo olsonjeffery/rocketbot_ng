@@ -21,8 +21,7 @@ class wikipedia_plugin
     page = msg.msg.replace(' ', '%20')
     url = "http://en.wikipedia.org/w/api.php?format=json&action=parse"+
             "&prop=text&page=#{page}&redirects"
-    scrape.single url, (body) ->
-      wiki = JSON.parse(body)
+    scrape.json url, (wiki) ->
       if wiki.error?
         client.say msg.reply,
           "Error doing wikipedia search: #{wiki.error.info}"

@@ -16,8 +16,7 @@ class etym_plugin
     """
   process: (client, msg) ->
     url = "http://www.etymonline.com/index.php?allowed_in_frame=0&search=#{msg.msg.compact().replace(' ', '%20')}&searchmode=none"
-    scrape.single url, (body, window) ->
-      $ = require('jquery').create(window)
+    scrape.jq url, ($) ->
       definition = $('dd:first').text().compact()
       console.log "definition from #{url}: #{definition}"
       if definition.length > 0

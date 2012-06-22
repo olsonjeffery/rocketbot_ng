@@ -15,11 +15,7 @@ commit_log = (client, msg) ->
     url = "https://api.github.com/repos/#{info.user}/#{info.repo}"+
        "/commits"
     console.log "before github response, url: #{url}"
-    scrape.single url, (body) ->
-      console.log "got github response"
-      console.log "body: #{body}"
-      resp = JSON.parse(body)
-      console.log "after json parse.."
+    scrape.json url, (resp) ->
       if resp.message?
         client.say msg.reply, "Failed to get repo info: #{resp.message}"
         return null

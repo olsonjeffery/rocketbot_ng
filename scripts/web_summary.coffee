@@ -102,8 +102,7 @@ class web_summary_plugin
     console.log "try to parse url for msg.text '#{msg.text}'"
     url = _.first(msg.text.match(url_god_regex))
     console.log "found url '#{url}'"
-    scrape.single url, (body, window) ->
-      $ = require('jquery').create(window)
+    scrape.jq url, ($) ->
       page_title = $('title').text().replace("\n",'') \
                      .replace("\t",'').compact()
       client.say msg.reply_to_nick, "\"#{page_title}\""

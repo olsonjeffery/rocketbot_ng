@@ -67,8 +67,7 @@ class webdip_newdip_plugin
               client.say msg.reply, "Sorry, I'm already following web "+
                 "diplomacy game ##{game_id}."
             else
-              scrape.single game_url, (body, window) ->
-                $ = require('jquery').create(window)
+              scrape.jq game_url, ($) ->
                 valid_game = $('span.gameName').length == 1
                 if valid_game
                   game_name = $('span.gameName').text()
@@ -127,8 +126,7 @@ webdip_data_by_short_name = (client, msg, short_name, cb) ->
   models.webdip_game.by_short_name short_name, (g) ->
     if g?
       game_url = webdip_url + g.game_id
-      scrape.single game_url, (body, window) ->
-        $ = require('jquery').create(window)
+      scrape.jq game_url, ($) ->
         valid_game = $('span.gameName').length == 1
         if valid_game
           game_name = $('span.gameName').text()

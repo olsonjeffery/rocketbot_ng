@@ -16,6 +16,8 @@ url = require 'url'
 httpAgent = require 'http-agent'
 jsdom = require('jsdom').jsdom
 _ = require 'underscore'
+jquery = require 'jquery'
+Parser = require('xml2js').Parser
 
 moz_agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:12.0)' +
             ' Gecko/20100101 Firefox/12.0'
@@ -50,7 +52,24 @@ scrape_single = (raw_url, cb) ->
   urls = [ parsed_url.path ]
   scrape_impl parsed_url, cb
 
-scrape =
-  single: scrape_single
+scrape_jq = (raw_url, cb) ->
+  scrape_single raw_url, (body, window) ->
+    jq = jquery.create(window)
+    cb jq
 
-module.exports = scrape
+scrape_json = (raw_url, cb) ->
+  scrape_single raw_url, (body, window) ->
+    payload = JSON.parse body
+    cb payload
+
+parser = new Parser()
+scrape_xml = (raw_url, cb) ->
+  scrape_single raw_url, (body, window) ->
+    parser.parseString body, (err, result) ->
+      if not err?
+        cb result
+
+module.exports =
+  jq: scrape_jq
+  json: scrape_json
+  xml: scrape_xml

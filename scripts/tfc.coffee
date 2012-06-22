@@ -16,8 +16,7 @@ class tfc_plugin
     INFO: a WAAACCKY message from theyfightcrime.org
     """
   process: (client, msg) ->
-    scrape.single 'http://www.theyfightcrime.org', (body, window) ->
-      $ = require('jquery').create (window)
+    scrape.jq 'http://www.theyfightcrime.org', ($) ->
       content = $($('table p')[0]).text().compact()
       if msg.command == 'theymakeporn' or msg.command == 'pr0n'
         console.log 'porn!'
