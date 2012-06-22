@@ -1,4 +1,6 @@
 _ = require 'underscore'
+mersenne = require 'mersenne'
+
 module.exports =
   hook_client: (hook) ->
     return {
@@ -29,3 +31,8 @@ module.exports =
         cb()
       else
         client.say nick, "Only bot admins can invoke this action."
+  rand: (upper_limit) ->
+    if upper_limit?
+      mersenne.rand() % upper_limit
+    else
+      mersenne.rand()
