@@ -3,6 +3,18 @@ _ = require 'underscore'
 
 search_base_url = 'http://search.twitter.com/search.json?q='
 
+twitter_search = (query, cb) ->
+  if query == ''
+    return null
+  if query.startsWith('@')
+    query = query.replace('@', 'from:')
+  t_url = (search_base_url+query).escapeURL().replace('#', '%23')
+  console.log "About to search twitter with: '#{t_url}'"
+  scrape.json t_url, (resp) ->
+    if resp.error?
+      cb null
+    cb resp.results
+
 class twitter_search_plugin
   constructor: (@options) ->
   name: 'twitter_search'
@@ -27,22 +39,16 @@ class twitter_search_plugin
   process: (client, msg) ->
     query = msg.msg.compact()
     if query == ''
-      client.say msg.reply, "You need to provide something for me to "+
-        "query against."
+      client.say msg.reply, "You provide a query to search with"
       return null
-    if query.startsWith('@')
-      query = query.replace('@', 'from:')
-    t_url = (search_base_url+query).escapeURL().replace('#', '%23')
-    console.log "About to search twitter with: '#{t_url}'"
-    scrape.json t_url, (resp) ->
-      if resp.error?
-        client.say msg.reply, "Error received: #{resp.error}"
-        return null
-      if resp.results.length > 0
-        result_set = if resp.results.length < 6
-          resp.results
+    twitter_search query, (results) ->
+      if results == null
+        client.say msg.reply, "Error with query '#{query}'"
+      if results.length > 0
+        result_set = if results.length < 6
+          results
         else
-          _.initial(resp.results, resp.results.length - 5)
+          _.initial(results, results.length - 5)
         _.each result_set, (r) ->
           tweet =
             from_user: r.from_user
@@ -58,5 +64,44 @@ class twitter_search_plugin
       else
         client.say msg.reply, "No results found for '#{query}'."
 
+class latest_tweet_plugin
+  constructor: (@options) ->
+  name: 'latest_tweet'
+  msg_type: 'message'
+  version: '1'
+  commands: [ 'lt', 'latest']
+  match_regex: ->
+    null
+  doc_name: 'latest_tweet'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}latest <QUERY>
+    SYNONYMs: latest, lt
+    INFO: Syntax the same as #{@options.cmd_prefix}tweet, but only returns
+          the newest tweet that matches the provided <QUERY>.
+    """
+  process: (client, msg) ->
+    query = msg.msg.compact()
+    if query == ''
+      client.say msg.reply, "You provide a query to search with"
+      return null
+    twitter_search query, (results) ->
+      if results == null
+        client.say msg.reply, "Error with query '#{query}'"
+      if results.length > 0
+        r = _.first(results)
+        tweet =
+          from_user: r.from_user
+          created: new Date(r.created_at)
+          text: r.text
+          to_user: r.to_user
+        to_suffix = if tweet.to_user != null
+          " to @#{tweet.to_user}"
+        client.say msg.reply, "@#{tweet.from_user}: \"#{tweet.text}\" "+
+          "#{tweet.created.relative()}#{to_suffix}."
+      else
+        client.say msg.reply, "No results found for '#{query}'."
+
 module.exports =
-  plugins: [twitter_search_plugin]
+  plugins: [twitter_search_plugin, latest_tweet_plugin]
+  search: twitter_search
