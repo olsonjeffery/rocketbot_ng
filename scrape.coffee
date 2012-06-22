@@ -20,12 +20,10 @@ _ = require 'underscore'
 moz_agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:12.0)' +
             ' Gecko/20100101 Firefox/12.0'
 
-scrape_multiple = (host, urls, cb) ->
-  options = _.map urls, (u) ->
-    console.log "setting up url '#{host+u}'"
-    return { uri: u, method: 'GET', headers: {'User-Agent':moz_agent} }
-  agent = httpAgent.create host, options
-  console.log 'Scraping', urls.length, 'pages from', agent.host
+scrape_impl = (parsed_url, cb) ->
+  options = [{uri: parsed_url, method: 'GET', headers: {'User-Agent':moz_agent} }]
+  agent = httpAgent.create parsed_url.host, options
+  console.log 'Scraping 1 page from', agent.host
 
   agent.addListener 'next', (err, agent) ->
     if agent?
@@ -50,10 +48,9 @@ scrape_single = (raw_url, cb) ->
   parsed_url = url.parse raw_url
   host = parsed_url.host
   urls = [ parsed_url.path ]
-  scrape_multiple host, urls, cb
+  scrape_impl parsed_url, cb
 
 scrape =
   single: scrape_single
-  multiple: scrape_multiple
 
 module.exports = scrape
