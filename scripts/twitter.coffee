@@ -45,9 +45,9 @@ class twitter_search_plugin
       if results == null
         client.say msg.reply, "Error with query '#{query}'"
       if results.length > 0
+        to_suffix = ""
         result_set = if results.length < 6
           results
-        to_suffix = ""
         else
           _.initial(results, results.length - 5)
         _.each result_set, (r) ->
@@ -89,8 +89,8 @@ class latest_tweet_plugin
     twitter_search query, (results) ->
       if results == null
         client.say msg.reply, "Error with query '#{query}'"
-      to_suffix = 0
       if results.length > 0
+        to_suffix = ''
         r = _.first(results)
         tweet =
           from_user: r.from_user
