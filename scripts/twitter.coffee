@@ -45,7 +45,6 @@ class twitter_search_plugin
       if results == null
         client.say msg.reply, "Error with query '#{query}'"
       if results.length > 0
-        to_suffix = ""
         result_set = if results.length < 6
           results
         else
@@ -56,7 +55,7 @@ class twitter_search_plugin
             created: new Date(r.created_at)
             text: r.text
             to_user: r.to_user
-          to_suffix = if tweet.to_user != null
+          to_suffix = if tweet.to_user?
             " to @#{tweet.to_user}"
           else
             ""
@@ -97,8 +96,10 @@ class latest_tweet_plugin
           created: new Date(r.created_at)
           text: r.text
           to_user: r.to_user
-        to_suffix = if tweet.to_user != null
+        to_suffix = if tweet.to_user?
           " to @#{tweet.to_user}"
+        else
+          ""
         client.say msg.reply, "@#{tweet.from_user}: \"#{tweet.text}\" "+
           "#{tweet.created.relative()}#{to_suffix}."
       else
