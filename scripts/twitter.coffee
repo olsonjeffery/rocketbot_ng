@@ -64,6 +64,32 @@ class twitter_search_plugin
       else
         client.say msg.reply, "No results found for '#{query}'."
 
+class twitter_trending_plugin
+  constructor: (@options) ->
+  name: 'twitter_trending'
+  msg_type: 'message'
+  version: '1'
+  commands: [ 'trending']
+  match_regex: ->
+    null
+  doc_name: 'trending'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}trending
+    SYNONYMs: latest, lt
+    INFO: Show trending topics for the United States
+    """
+  process: (client, msg) ->
+    us_trending_url = "http://api.twitter.com/1/trends/23424977.json"
+    scrape.json us_trending_url, (resp) ->
+      if resp.errors?
+        client.say msg.reply, "There was an error looking up trending topics, sorry."
+      trends = _.map(resp[0].trends, (t) ->
+        t.name + if t.promoted? then " (PROMOTED)" else ""
+      ).join(", ")
+      as_of = new Date(resp[0].as_of);
+      client.say msg.reply, "Trending twitter topics in the USA, as of #{as_of.relative()}: #{trends}"
+
 class latest_tweet_plugin
   constructor: (@options) ->
   name: 'latest_tweet'
@@ -106,5 +132,5 @@ class latest_tweet_plugin
         client.say msg.reply, "No results found for '#{query}'."
 
 module.exports =
-  plugins: [twitter_search_plugin, latest_tweet_plugin]
+  plugins: [twitter_search_plugin, latest_tweet_plugin, twitter_trending_plugin]
   search: twitter_search
