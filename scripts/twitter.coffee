@@ -59,7 +59,7 @@ class twitter_search_plugin
             " to @#{tweet.to_user}"
           else
             ""
-          client.say msg.reply, "@#{tweet.from_user}: \"#{tweet.text}\" "+
+          client.say msg.reply, "@#{tweet.from_user}: \"#{tweet.text.unescapeHTML()}\" "+
             "#{tweet.created.relative()}#{to_suffix}."
       else
         client.say msg.reply, "No results found for '#{query}'."
@@ -126,7 +126,7 @@ class latest_tweet_plugin
           " to @#{tweet.to_user}"
         else
           ""
-        client.say msg.reply, "@#{tweet.from_user}: \"#{tweet.text}\" "+
+        client.say msg.reply, "@#{tweet.from_user}: \"#{tweet.text.unescapeHTML()}\" "+
           "#{tweet.created.relative()}#{to_suffix}."
       else
         client.say msg.reply, "No results found for '#{query}'."

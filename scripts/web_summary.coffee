@@ -67,9 +67,9 @@ class links_plugin
           client.say msg.reply, "Most recent links from #{msg.msg}:"
           _.each links, (l) ->
             display = if l.desc.indexOf(l.url) == -1
-              "#{l.url} - \"#{l.title}\""
+              "#{l.url} - \"#{l.title.unescapeHTML()}\""
             else
-              "\"#{l.desc}\""
+              "\"#{l.desc.unescapeHTML()}\""
             client.say msg.reply, "#{display} #{l.createdAt.relative()}"
         else
           client.say msg.reply, "I haven't seen any links from #{msg.msg}"
@@ -80,9 +80,9 @@ class links_plugin
           client.say msg.reply, "Recent links:"
           _.each links, (l) ->
             display = if l.desc.indexOf(l.url) == -1
-              "#{l.url} - \"#{l.title}\""
+              "#{l.url} - \"#{l.title.unescapeHTML()}\""
             else
-              "\"#{l.desc}\""
+              "\"#{l.desc.unescapeHTML()}\""
             client.say msg.reply, "<#{l.nick}> " +
               "#{display} #{l.createdAt.relative()}"
         else
@@ -104,13 +104,13 @@ class web_summary_plugin
     console.log "found url '#{url}'"
     scrape.jq url, ($) ->
       page_title = $('title').text().replace("\n",'') \
-                     .replace("\t",'').compact()
+                     .replace("\t",'').compact().unescapeHTML()
       client.say msg.reply_to_nick, "\"#{page_title}\""
       desc = $('meta[name="description"]');
 
       if desc.length > 0
         console.log 'has meta'
-        client.say msg.reply_to_nick, "\"#{$(desc[0]).attr('content')}\""
+        client.say msg.reply_to_nick, "\"#{$(desc[0]).attr('content').unescapeHTML()}\""
 
       models.web_link.create
         chan: msg.reply
