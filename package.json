@@ -1,0 +1,31 @@
+{
+  "author": "Jeffery Olson",
+  "name": "rocketbot_ng",
+  "description": "hybrid IRC bot and web app",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/olsonjeffery/rocketbot_ng.git"
+  },
+  "dependencies": {
+    "coffee-script": ">= 0.0.1",
+    "underscore":">= 0.0.1",
+    "sugar":">= 0.0.1",
+    "jquery":">= 0.0.1",
+    "jsdom":">= 0.0.1",
+	 "xml2js":">= 0.0.1",
+    "http-agent":">= 0.0.1",
+	 "sqlite3":">= 0.0.1",
+    "tinyhook":">= 0.0.1",
+    "forever":">= 0.0.1",
+    "irc":">= 0.0.1",
+    "sequelize":">= 0.0.1",
+    "forever":">= 0.0.1",
+    "mersenne":">= 0.0.1"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}
