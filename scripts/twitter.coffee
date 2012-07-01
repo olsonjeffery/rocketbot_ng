@@ -64,6 +64,15 @@ class twitter_search_plugin
       else
         client.say msg.reply, "No results found for '#{query}'."
 
+available_locs = null
+get_available_locs = (cb) ->
+  if not available_locs?
+    scrape.json 'https://api.twitter.com/1/trends/available.json', (resp) ->
+      available_locs = resp
+      cb available_locs
+  else
+    cb available_locs
+
 class twitter_trending_plugin
   constructor: (@options) ->
   name: 'twitter_trending'
@@ -80,15 +89,66 @@ class twitter_trending_plugin
     INFO: Show trending topics for the United States
     """
   process: (client, msg) ->
-    us_trending_url = "http://api.twitter.com/1/trends/23424977.json"
-    scrape.json us_trending_url, (resp) ->
-      if resp.errors?
-        client.say msg.reply, "There was an error looking up trending topics, sorry."
-      trends = _.map(resp[0].trends, (t) ->
-        t.name + if t.promoted? then " (PROMOTED)" else ""
-      ).join(", ")
-      as_of = new Date(resp[0].as_of);
-      client.say msg.reply, "Trending twitter topics in the USA, as of #{as_of.relative()}: #{trends}"
+    get_available_locs (available_locs) ->
+      desired_loc = '23424977'
+      desired_loc_name = 'USA'
+      query_loc = msg.msg.compact().toLowerCase()
+      if query_loc != ''
+        hits = _.filter(available_locs, (loc) ->
+          if query_loc.length != 2 and loc.placeType.code == 7 # town
+            name = ("#{loc.name}, #{loc.country}").toLowerCase()
+            name.indexOf(query_loc) != -1
+          else if loc.placeType.code == 12 # country
+            name = ("#{loc.name}").toLowerCase()
+            if query_loc.length == 2
+              loc.countryCode.toLowerCase() == query_loc
+            else
+              name.indexOf(query_loc) != -1
+          else
+            false
+        )
+        if hits.length == 0
+          client.say msg.reply, "No locations matching '#{msg.msg.compact()}'"
+          return null
+        if hits.length > 1
+          result = _.map(hits, (loc) ->
+            if loc.placeType.code == 7 # town
+              "#{loc.name} - #{loc.country} (Town)"
+            else if loc.placeType.code == 12 # country
+              "#{loc.name} (use country code '#{loc.countryCode}')"
+            else
+              ''
+          ).join(', ')
+          client.say msg.reply, "Multiple locations matching "+
+            "'#{msg.msg.compact()}': #{result}"
+          return null
+        else
+          hits = _.first(hits)
+          loc_info = if hits.placeType.code == 7 # town
+              {name: "#{hits.name} - #{hits.country} (Town)", id: hits.woeid}
+            else if hits.placeType.code == 12 # country
+              {name: "#{hits.name} (Country)", id: hits.woeid }
+            else
+              null
+          if loc_info == null
+            client.say msg.reply, "Unknown location type "+
+             "'#{hits.placeType.code}' for '#{hits.name}'"
+            return null
+          desired_loc = loc_info.id
+          desired_loc_name = loc_info.name
+          console.log "FOUND MATCH: #{desired_loc} #{desired_loc_name}"
+      trending_url = "http://api.twitter.com/1/trends/#{desired_loc}.json"
+      scrape.json trending_url, (resp) ->
+        if resp.errors?
+          client.say msg.reply, "There was an error looking up trending "+
+            "topics, sorry."
+        trends = _.map(resp[0].trends, (t) ->
+          t.name + if t.promoted? then " (PROMOTED)" else ""
+        ).join(", ")
+        as_of = new Date(resp[0].as_of);
+        client.say msg.reply,
+          "Trending twitter topics for #{desired_loc_name},"+
+          " as of #{as_of.relative()}: #{trends}"
 
 class latest_tweet_plugin
   constructor: (@options) ->
@@ -126,11 +186,13 @@ class latest_tweet_plugin
           " to @#{tweet.to_user}"
         else
           ""
-        client.say msg.reply, "@#{tweet.from_user}: \"#{tweet.text.unescapeHTML()}\" "+
+        client.say msg.reply,
+          "@#{tweet.from_user}: \"#{tweet.text.unescapeHTML()}\" "+
           "#{tweet.created.relative()}#{to_suffix}."
       else
         client.say msg.reply, "No results found for '#{query}'."
 
 module.exports =
-  plugins: [twitter_search_plugin, latest_tweet_plugin, twitter_trending_plugin]
+  plugins: [twitter_search_plugin, latest_tweet_plugin,
+            twitter_trending_plugin]
   search: twitter_search
