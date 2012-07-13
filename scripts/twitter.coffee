@@ -85,7 +85,6 @@ class twitter_trending_plugin
   docs: ->
     """
     SYNTAX: #{@options.cmd_prefix}trending
-    SYNONYMs: latest, lt
     INFO: Show trending topics for the United States
     """
   process: (client, msg) ->
@@ -155,14 +154,14 @@ class latest_tweet_plugin
   name: 'latest_tweet'
   msg_type: 'message'
   version: '1'
-  commands: [ 'lt', 'latest']
+  commands: [ 'lt', 'latest', 'recent']
   match_regex: ->
     null
   doc_name: 'latest_tweet'
   docs: ->
     """
     SYNTAX: #{@options.cmd_prefix}latest <QUERY>
-    SYNONYMs: latest, lt
+    SYNONYMs: latest, lt, recent
     INFO: Syntax the same as #{@options.cmd_prefix}tweet, but only returns
           the newest tweet that matches the provided <QUERY>.
     """
