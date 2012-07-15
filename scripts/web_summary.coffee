@@ -107,10 +107,17 @@ class web_summary_plugin
                      .replace("\t",'').compact().unescapeHTML()
       client.say msg.reply_to_nick, "\"#{page_title}\""
       desc = $('meta[name="description"]');
-
+      skip_domains = [
+         'imgur.com',
+         'facebook.com'
+      ]
       if desc.length > 0
-        console.log 'has meta'
-        client.say msg.reply_to_nick, "\"#{$(desc[0]).attr('content').unescapeHTML()}\""
+        in_skip = _.filter skip_domains, (sd) ->
+          url.indexOf(sd) != -1
+        if not in_skip? or in_skip.length == 0
+          console.log 'has meta'
+          client.say msg.reply_to_nick,
+                     "\"#{$(desc[0]).attr('content').unescapeHTML()}\""
 
       models.web_link.create
         chan: msg.reply
