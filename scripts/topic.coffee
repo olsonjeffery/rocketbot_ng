@@ -48,7 +48,7 @@ class topic_logger_plugin
     /^.*$/
   process: (client, msg) ->
     console.log "topic_logger process..."
-    new_topic = msg.topic.replace("'",'')
+    new_topic = msg.topic.replace(new RegExp("'", "g"),'')
     console.log "querying on topic: \"#{new_topic}\""
     topic_nick = msg.nick.split('!')[0].compact()
     models.topic_info.by_topic new_topic, (t) =>
