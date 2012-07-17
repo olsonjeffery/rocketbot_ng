@@ -49,6 +49,7 @@ class topic_logger_plugin
   process: (client, msg) ->
     console.log "topic_logger process..."
     new_topic = msg.topic.replace("'",'')
+    console.log "querying on topic: \"#{new_topic}\""
     topic_nick = msg.nick.split('!')[0].compact()
     models.topic_info.by_topic new_topic, (t) =>
       if (t? and t.nick == topic_nick) or topic_nick == @options.nick
