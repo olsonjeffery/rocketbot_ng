@@ -21,7 +21,8 @@
     "irc":">= 0.0.1",
     "sequelize":">= 0.0.1",
     "forever":">= 0.0.1",
-    "mersenne":">= 0.0.1"
+    "mersenne":">= 0.0.1",
+	"ping":">= 0.0.1"
   },
   "devDependencies": {},
   "optionalDependencies": {},
