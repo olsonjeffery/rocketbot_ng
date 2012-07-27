@@ -43,9 +43,16 @@ SandboxHook = exports.SandboxHook = (hook_options) ->
     )
     # initialize them all..
     @plugins = _.map plugins, (plg) =>
-      nPlg = new plg(@bot_options, db)
+      nPlg = new plg(@bot_options, db, this)
       nPlg.active = true
       nPlg
+    listeners = _.filter @plugins, (plg) ->
+      plg.msg_type == 'listener'
+    _.each listeners, (plg) =>
+      self = this
+      @on plg.hook_name, (data) ->
+        client = rb_util.hook_client self
+        plg.process.apply(plg, [client, data])
     @emit 'sandbox_active', {}
   @on '*::process_msg', (data) =>
     { msg_type, parsed_msg } = data
@@ -54,17 +61,12 @@ SandboxHook = exports.SandboxHook = (hook_options) ->
       if plg.msg_type == msg_type and plg.active
         match_regex = plg.match_regex()
         if parsed_msg.has_command and plg.commands.length > 0
-          console.log "incoming msg has_command #{parsed_msg.command}"
           match_cmd = _.detect plg.commands, (cmd) ->
             cmd == parsed_msg.command
           if match_cmd
-            console.log "cmd match"
             plg.process client, parsed_msg
         else if match_regex? and match_regex.test parsed_msg.text
-          console.log "regex match!"
           plg.process client, parsed_msg
-        else
-          console.log "no matching-cmd or match regex..."
   @on '*::recycle_sandbox', =>
     console.log "recycling sandbox!"
     @stop()

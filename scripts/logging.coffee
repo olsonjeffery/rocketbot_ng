@@ -71,7 +71,7 @@ class seen_plugin
         client.say msg.reply, "I haven't heard anything from #{msg.msg}"
 
 class logging_plugin
-  constructor: (@options, @db) ->
+  constructor: (@options, @db, @hook) ->
     log_entry_init @db
   name: 'logging'
   msg_type: 'message'
@@ -82,6 +82,10 @@ class logging_plugin
   process: (client, msg) ->
     console.log "LOGGING: <#{msg.sending_nick}> #{msg.text}"
     models.log_entry.create
+      chan: msg.reply
+      nick: msg.sending_nick
+      msg: msg.text
+    @hook.emit "logging::new_msg",
       chan: msg.reply
       nick: msg.sending_nick
       msg: msg.text
