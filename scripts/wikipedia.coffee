@@ -21,6 +21,7 @@ class wikipedia_plugin
     page = msg.msg.replace(' ', '%20')
     url = "http://en.wikipedia.org/w/api.php?format=json&action=parse"+
             "&prop=text&page=#{page}&redirects"
+    page_url = "http://en.wikipedia.org/wiki/#{page}"
     scrape.json url, (wiki) ->
       if wiki.error?
         client.say msg.reply,
@@ -37,6 +38,7 @@ class wikipedia_plugin
         first_graf = $('p:first').text()
         if first_graf?
           client.say msg.reply, "\"#{first_graf.truncate(400)}\""
+          client.say msg.reply, "Learn more at: #{page_url}"
         else
           client.say msg.reply, "no data found. hm."
 
