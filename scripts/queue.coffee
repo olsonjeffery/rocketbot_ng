@@ -44,7 +44,7 @@ class qpush_plugin
       queue_contents_init @db
   name: 'qpush'
   msg_type: 'message'
-  version: '1'
+  version: '2'
   commands: ['qpush']
   match_regex: () ->
     null
@@ -73,7 +73,7 @@ class qunshift_plugin
       queue_contents_init @db
   name: 'qunshift'
   msg_type: 'message'
-  version: '1'
+  version: '2'
   commands: ['qunshift']
   match_regex: () ->
     null
@@ -102,7 +102,7 @@ class qpop_plugin
       queue_contents_init @db
   name: 'qpop'
   msg_type: 'message'
-  version: '1'
+  version: '2'
   commands: ['qpop']
   match_regex: () ->
     null
@@ -124,7 +124,7 @@ class qshift_plugin
       queue_contents_init @db
   name: 'qshift'
   msg_type: 'message'
-  version: '1'
+  version: '2'
   commands: ['qshift']
   match_regex: () ->
     null
@@ -146,7 +146,7 @@ class qremove_plugin
       queue_contents_init @db
   name: 'qremove'
   msg_type: 'message'
-  version: '1'
+  version: '2'
   commands: ['qremove']
   match_regex: () ->
     null
@@ -180,7 +180,7 @@ class qtmp_plugin
       queue_contents_init @db
   name: 'qtmp'
   msg_type: 'message'
-  version: '1'
+  version: '2'
   commands: ['qtmp']
   match_regex: () ->
     null
@@ -203,7 +203,7 @@ class queue_plugin
       queue_contents_init @db
   name: 'queue'
   msg_type: 'message'
-  version: '1'
+  version: '2'
   commands: ['queue', 'stack', 'list']
   match_regex: () ->
     null
