@@ -50,9 +50,12 @@ SandboxHook = exports.SandboxHook = (hook_options) ->
       plg.msg_type == 'listener'
     _.each listeners, (plg) =>
       self = this
-      @on plg.hook_name, (data) ->
+      listener_process = (data) ->
         client = rb_util.hook_client self
         plg.process.apply(plg, [client, data])
+      @on "*::#{plg.hook_name}", (data) ->
+        console.log "wildcard hit for #{plg.hook_name}"
+        listener_process data
     @emit 'sandbox_active', {}
   @on '*::process_msg', (data) =>
     { msg_type, parsed_msg } = data
