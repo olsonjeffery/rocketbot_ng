@@ -59,7 +59,6 @@ class links_plugin
           a <NICK> to narrow the list.
     """
   process: (client, msg) ->
-    console.log "msg.msg : #{msg.msg}"
     if msg.msg != ''
       console.log "links for '#{msg.msg}'"
       models.web_link.latest_links_for msg.msg, (links) ->
@@ -89,23 +88,39 @@ class links_plugin
           console.log "Huh. I don't have any saved links. Sorry, dude."
 
 class web_summary_plugin
-  constructor: (@options, @db) ->
+  constructor: (@options, @db, @hook) ->
     if not web_link_initialized
       web_link_init @db
   name: 'web_summary'
   msg_type: 'message'
-  version: '1'
+  version: '2'
   commands: []
   match_regex: () ->
     url_god_regex
   process: (client, msg) ->
-    console.log "try to parse url for msg.text '#{msg.text}'"
     url = _.first(msg.text.match(url_god_regex))
+    @hook.emit 'web_summary::new_link',
+      chan: msg.reply
+      nick: msg.sending_nick
+      url: url
+      desc: msg.text
+      save: true
+
+class web_summary_listener_plugin
+  constructor: (@options, @db) ->
+    if not web_link_initialized
+      web_link_init @db
+  name: 'web_summary'
+  msg_type: 'listener'
+  hook_name: 'web_summary::new_link'
+  version: '1'
+  process: (client, data) ->
+    url = data.url
     console.log "found url '#{url}'"
     scrape.jq url, ($) ->
       page_title = $('title').text().replace("\n",'') \
                      .replace("\t",'').compact().unescapeHTML()
-      client.say msg.reply_to_nick, "\"#{page_title}\""
+      client.say data.chan, "\"#{page_title}\""
       desc = $('meta[name="description"]');
       skip_domains = [
          'imgur.com',
@@ -116,16 +131,16 @@ class web_summary_plugin
           url.indexOf(sd) != -1
         if not in_skip? or in_skip.length == 0
           console.log 'has meta'
-          client.say msg.reply_to_nick,
+          client.say data.chan,
                      "\"#{$(desc[0]).attr('content').unescapeHTML()}\""
-
-      models.web_link.create
-        chan: msg.reply
-        nick: msg.sending_nick
-        url: url
-        title: page_title
-        desc: msg.text
+      if data.save
+        models.web_link.create
+          chan: data.chan
+          nick: data.nick
+          url: data.url
+          desc: data.desc
+          title: page_title
 
 module.exports =
-  plugins: [web_summary_plugin, links_plugin]
+  plugins: [web_summary_plugin, links_plugin, web_summary_listener_plugin]
   models: models
