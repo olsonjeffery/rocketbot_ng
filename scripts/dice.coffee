@@ -32,10 +32,25 @@ class dice_plugin
         garbage = true
         client.say msg.reply, "Garbage input. Numbers greater than zero, "+
           "jerk."
+    die_rolls = nums[0]
+    die_sides = nums[1]
+    if die_rolls > 20 and not garbage
+      client.say msg.reply, "We don't roll more than 20 times, 'round "+
+        "these parts"
+      garbage = true
+    if die_sides > 100 and not garbage
+      client.say msg.reply, "Can't roll a die with more than 100 sides, "+
+        "sorry"
+      garbage = true
+    if die_sides == 1 and not garbage
+      client.say msg.reply, "Why the hell would you roll a 1-sided die? "+
+        "Are you some kind of smartass?"
+      garbage = true
+
     if not garbage
       results = []
-      _.times nums[0], ->
-        results.push rbu.rand(nums[1])+1
+      _.times die_rolls, ->
+        results.push rbu.rand(die_sides)+1
       output = results.join(", ")
       client.say msg.reply, "Results: #{output}"
 
