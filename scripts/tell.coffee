@@ -15,6 +15,7 @@ tell_message_init = (db) ->
     {
       classMethods: {
         for_target: (nick, cb) ->
+          nick = nick.toLowerCase()
           @findAll({
             order: 'createdAt ASC',
             where: {target: nick, read: 0}
@@ -26,7 +27,7 @@ tell_message_init = (db) ->
 
 new_tell = (target, tell_msg, sender, cb) ->
   models.tell_message.create
-    target: target
+    target: target.toLowerCase()
     sender: sender
     msg: tell_msg
     read: false
@@ -52,15 +53,14 @@ class tell_plugin
     """
   process: (client, msg) ->
     parts = msg.msg.compact().split(' ')
-    target = _.first parts
+    target = (_.first parts)
     tell_msg = _.rest(parts).join(' ')
     sender = msg.sending_nick
-    new_tell target, tell_msg, sender, ->
+    new_tell target.toLowerCase(), tell_msg, sender, ->
       client.say msg.reply, "Ok, I'll tell #{target} '#{tell_msg}' next "+
         "time I see them."
 
-
-class tell_monitor_plugin
+class tell_logging_listener_plugin
   constructor: (@options, @db) ->
     if not tell_message_initialized
       tell_message_init @db
@@ -69,7 +69,6 @@ class tell_monitor_plugin
   hook_name: 'logging::new_msg'
   version: '1'
   process: (client, data) ->
-    console.log "TELL MONITOR HIT! blah from #{data.nick}"
     models.tell_message.for_target data.nick, (tell_msgs) ->
       if tell_msgs? and tell_msgs.length > 0
         console.log "we have messages for #{data.nick}"
@@ -89,5 +88,4 @@ class tell_monitor_plugin
         setTimeout message_teller, timer_delay
 
 module.exports =
-  plugins: [tell_plugin, tell_monitor_plugin]
-  new_tell: new_tell
+  plugins: [tell_plugin, tell_logging_listener_plugin]

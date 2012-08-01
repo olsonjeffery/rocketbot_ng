@@ -14,6 +14,7 @@ euphemism_init = (db) ->
     {
       classMethods: {
         recent_for: (nick, cb) ->
+          nick = nick.toLowerCase()
           @findAll({
             order: 'createdAt DESC',
             limit: 5,
@@ -104,7 +105,7 @@ class euphemism_plugin
     else
       models.euphemism.create
         chan: msg.reply
-        nick: msg.sending_nick
+        nick: msg.sending_nick.toLowerCase()
         desc: euph
       client.say msg.reply, "Euphemism \"#{euph}\" added."
 class recent_euphemisms_plugin

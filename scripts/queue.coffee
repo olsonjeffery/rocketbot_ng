@@ -15,6 +15,7 @@ queue_contents_init = (db) ->
     {
       classMethods: {
         create_or_find: (nick, chan, cb) ->
+          nick = nick.toLowerCase()
           @find({
             order: 'createdAt ASC',
             where: {nick: nick, chan: chan}
@@ -26,6 +27,7 @@ queue_contents_init = (db) ->
                 cb entry
         work_on_queue: (nick, chan, cb) ->
           @create_or_find nick, chan, (contents) ->
+            nick = nick.toLowerCase()
             queue = JSON.parse contents.contents
             tmp = JSON.parse contents.tmp
             [ new_queue, new_tmp ] = cb(queue, _.first(tmp))

@@ -18,6 +18,7 @@ user_data_init = (db) ->
     {
       classMethods: {
         by_nick: (nick, cb) ->
+          nick = nick.toLowerCase()
           @find({
             where: {nick: nick}
           }).success (entry) ->
@@ -35,6 +36,7 @@ user_data_init = (db) ->
           }).success (entries) ->
             cb entries
         new_ud: (nick) ->
+          nick = nick.toLowerCase()
           @build
             nick: nick
             puns: 0
@@ -62,8 +64,8 @@ punish_nick = (pun_nick, client, reply, frag, is_punish) ->
       "$#{(ud.puns * 0.25).format(2)} #{frag_msg}."
 
 punshe_common = (client, msg, is_punish) ->
-  pun_nick = _.first(msg.msg.compact().split(' '))
-  if pun_nick == msg.sending_nick
+  pun_nick = _.first(msg.msg.compact().split(' ')).toLowerCase()
+  if pun_nick == msg.sending_nick.toLowerCase()
     plbl = if is_punish then "punish" else "un-punish"
     client.say msg.reply, "Sorry, you can't #{plbl} yourself (as much as "+
       "you probably deserve it)."
@@ -138,12 +140,13 @@ class punjar_plugin
     """
   process: (client, msg) ->
     if msg.msg? and msg.msg.length > 0
-      models.user_data.by_nick msg.msg, (ud) ->
+      input_nick = msg.msg.compact()
+      models.user_data.by_nick input_nick.toLowerCase(), (ud) ->
         if ud?
-          client.say msg.reply, "#{ud.nick} owes the pun jar "+
+          client.say msg.reply, "#{input_nick} owes the pun jar "+
                "$#{(ud.puns * .25).format(2)}."
         else
-          client.say msg.reply, "Sorry, I got nuthin' for #{msg.msg}"
+          client.say msg.reply, "Sorry, I got nuthin' for #{input_nick}"
     else
       models.user_data.top_puns (entries) ->
         client.say msg.reply, "Top punsters:"
@@ -191,15 +194,17 @@ class puns_plugin
     """
   process: (client, msg) ->
     if msg.msg? and msg.msg.length > 0
-      logging.models.log_entry.recent_puns_from msg.msg, (entries) ->
-        if entries? and entries.length > 0
-          client.say msg.reply, "Recent puns from #{msg.msg}:"
-          _.each entries, (e) ->
-            client.say msg.reply, "#{e.createdAt.relative()} "+
-               "\"#{e.msg}\""
-        else
-          client.say msg.reply, "No recorded puns logged from #{msg.msg},"+
-            " sorry."
+      input_nick = msg.msg.compact()
+      logging.models.log_entry.recent_puns_from input_nick.toLowerCase(),
+        (entries) ->
+          if entries? and entries.length > 0
+            client.say msg.reply, "Recent puns from #{input_nick}:"
+            _.each entries, (e) ->
+              client.say msg.reply, "#{e.createdAt.relative()} "+
+                 "\"#{e.msg}\""
+          else
+            client.say msg.reply, "No recorded puns logged from #{msg.msg},"+
+              " sorry."
     else
       logging.models.log_entry.recent_puns (entries) ->
         if entries? and entries.length > 0

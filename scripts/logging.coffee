@@ -13,12 +13,14 @@ log_entry_init = (db) ->
     {
       classMethods: {
         latest_entry_for: (nick, cb) ->
+          nick = nick.toLowerCase()
           @find({
             order: 'createdAt DESC',
             where: {nick: nick}
           }).success (entry) ->
             cb entry
         entries_for_nick_after: (nick, cutoff, cb) ->
+          nick = nick.toLowerCase()
           @findAll({
             order: 'createdAt DESC',
             where: ['datetime(createdAt) > datetime(?)',
@@ -30,19 +32,20 @@ log_entry_init = (db) ->
             console.log "# if entries by nick since c/o: #{entries.length}"
             cb entries
          recent_puns: (cb) ->
-          @findAll({
-            order: 'createdAt DESC',
-            limit: 5,
-            where: {is_pun: 1}
-          }).success (entries) ->
-            cb entries
+           @findAll({
+             order: 'createdAt DESC',
+             limit: 5,
+             where: {is_pun: 1}
+           }).success (entries) ->
+             cb entries
          recent_puns_from: (nick, cb) ->
-          @findAll({
-            order: 'createdAt DESC',
-            limit: 5,
-            where: {is_pun: 1, nick: nick}
-          }).success (entries) ->
-            cb entries
+            nick = nick.toLowerCase()
+            @findAll({
+              order: 'createdAt DESC',
+              limit: 5,
+              where: {is_pun: 1, nick: nick}
+            }).success (entries) ->
+              cb entries
       }
     })
   models.log_entry.sync()
@@ -63,9 +66,11 @@ class seen_plugin
           if the bot has heard them at all.
     """
   process: (client, msg) ->
-    latest = models.log_entry.latest_entry_for msg.msg, (entry) ->
+    input_nick = msg.msg.compact()
+    seen_nick = input_nick.toLowerCase()
+    latest = models.log_entry.latest_entry_for seen_nick, (entry) ->
       if entry?
-        client.say msg.reply, "#{entry.nick} was last seen "+
+        client.say msg.reply, "#{input_nick} was last seen "+
           "#{entry.createdAt.relative()} saying '#{entry.msg}'."
       else
         client.say msg.reply, "I haven't heard anything from #{msg.msg}"
@@ -79,16 +84,19 @@ class logging_plugin
   commands: []
   match_regex: ->
     /^.*$/
-  process: (client, msg) ->
-    console.log "LOGGING: <#{msg.sending_nick}> #{msg.text}"
+  process: (client, in_msg) ->
+    chan = in_msg.reply.toLowerCase()
+    nick = in_msg.sending_nick.toLowerCase()
+    msg = in_msg.text
+    console.log "LOGGING: <#{nick}> #{msg}"
     models.log_entry.create
-      chan: msg.reply
-      nick: msg.sending_nick
-      msg: msg.text
+      chan: chan
+      nick: nick
+      msg: msg
     @hook.emit "logging::new_msg",
-      chan: msg.reply
-      nick: msg.sending_nick
-      msg: msg.text
+      chan: chan
+      nick: nick
+      msg: msg
 
 module.exports =
   plugins: [logging_plugin, seen_plugin]
