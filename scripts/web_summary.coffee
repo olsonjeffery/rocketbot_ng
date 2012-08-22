@@ -1,6 +1,7 @@
 _ = require 'underscore'
 jsdom = require 'jsdom'
 require 'sugar'
+shorturl = require 'shorturl'
 
 scrape = require '../scrape'
 
@@ -133,6 +134,9 @@ class web_summary_listener_plugin
           console.log 'has meta'
           client.say data.chan,
                      "\"#{$(desc[0]).attr('content').unescapeHTML()}\""
+      shorturl url, (shorty) ->
+        client.say data.chan, shorty
+
       if data.save
         models.web_link.create
           chan: data.chan
