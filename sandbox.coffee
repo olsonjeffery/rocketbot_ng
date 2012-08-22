@@ -77,16 +77,30 @@ SandboxHook = exports.SandboxHook = (hook_options) ->
     client = rb_util.hook_client this
     topic = msg.msg.compact()
     if topic == ''
-      topics = _.map((_.filter @plugins, (plg) -> plg.active and plg.docs?),
+      topics = _.map((_.filter @plugins,
+        (plg) ->
+          plg.active and plg.docs?),
         (plg) ->
           "'#{plg.doc_name}'"
-      ).join(', ')
+      ).sort()
       if topics == ''
         client.say msg.sending_nick, "I don't have any docs, sorry."
       else
         client.say msg.sending_nick, "I have documentation on the "+
-        "following topics: #{topics}"
-        client.say msg.sending_nick, "Type `#{@bot_options.cmd_prefix}"+
+        "following topics: "
+        topics_str = topics.join(', ')
+        if topics_str.length > 400
+          while topics.length > 0
+            topic_set = []
+            while topic_set.join(', ').length < 380 and
+                topics.length > 0
+              topic_set.push _.first topics
+              topics = _.rest topics
+            client.say msg.sending_nick, topic_set.join(', ')
+        else
+          client.say msg.sending_nick, topics_str
+        client.say msg.sending_nick,
+          "Type `#{@bot_options.cmd_prefix}"+
           "help <TOPIC>` to learn about a specific topic."
     else
       plg = _.detect(@plugins, (plg) ->
