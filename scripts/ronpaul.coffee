@@ -1,3 +1,5 @@
+_ = require 'underscore'
+rbu = require '../rb_util'
 last_truth_telling = null
 
 class paulistine_plugin
@@ -39,5 +41,23 @@ class paulistine_plugin
     else
       client.say msg.reply, "Sorry, Dr. Paul says too much TRUTH can be "+
         "dangerous to the health of the uninitiated."
+
+phrases = ['ron paul', 'ronpaul', 'paulistine', 'paulistinian',
+           'r3volution', 'gold standard', 'goldbug', 'audit the fed',
+           'objectivism', 'objectivist', 'ronvoy', 'dr. paul']
+chants = ["RONNVVVOOOOY", "Ronvoy! Ronvoy!", "'cause we got a little "+
+          "Ronvoy / Rockin' through the night!"]
+class ronvoy_listener_plugin
+  constructor: (@options, @db) ->
+  name: 'ronvoy'
+  msg_type: 'listener'
+  hook_name: 'logging::new_msg'
+  version: '1'
+  process: (client, data) ->
+    _.each phrases, (p) ->
+      random_chant = chants[rbu.rand(chants.length)]
+      if data.msg.toLowerCase().indexOf(p) != -1
+        client.say data.chan, random_chant
+
 module.exports =
-  plugins: [paulistine_plugin]
+  plugins: [paulistine_plugin, ronvoy_listener_plugin]
