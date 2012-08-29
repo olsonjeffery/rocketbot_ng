@@ -28,6 +28,7 @@ scrape_impl = (parsed_url, cb) ->
   console.log 'Scraping 1 page from', agent.host
 
   agent.addListener 'next', (err, agent) ->
+    console.log "in scrape 'next' callback"
     if agent?
       window = jsdom(agent.body).createWindow()
       try
@@ -44,7 +45,7 @@ scrape_impl = (parsed_url, cb) ->
 
   # Start scraping
   agent.start()
-  console.log('scrape_multiple exiting...')
+  console.log('scrape_impl exiting...')
 
 scrape_single = (raw_url, cb) ->
   parsed_url = url.parse raw_url
