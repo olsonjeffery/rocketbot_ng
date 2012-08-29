@@ -43,10 +43,15 @@ class paulistine_plugin
         "dangerous to the health of the uninitiated."
 
 phrases = ['ron paul', 'ronpaul', 'paulistine', 'paulistinian',
-           'r3volution', 'gold standard', 'goldbug', 'audit the fed',
+           'r3volution', 'gold standard', 'goldbug', 'the fed',
            'objectivism', 'objectivist', 'ronvoy', 'dr. paul']
 chants = ["RONNVVVOOOOY", "Ronvoy! Ronvoy!", "'cause we got a little "+
-          "Ronvoy / Rockin' through the night!"]
+          "Ronvoy / Rockin' through the night!", "I long to take to "+
+          "the high seas, to know the kiss of freedom; the ecstacy of "+
+          "unfettered markets. Take me, oh take me Lord to the Seastead.",
+          "First they came for the small business owners, and we said "+
+          "nothing.", "You were warned, America. Dr. Paul *tried* to "+
+          "warn you. But no. *You* didn't listen. You wouldn't listen."]
 class ronvoy_listener_plugin
   constructor: (@options, @db) ->
   name: 'ronvoy'
