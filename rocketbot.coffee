@@ -87,7 +87,21 @@ master.on 'hook::ready', ->
     console.log "MASTER: rocketbot has joined #{chan}"
 
   bot_say_common = (data) ->
-    rocketbot.say data.chan, data.msg.replace(/\r/g, '').replace(/\n/g,'')
+    good_message = true
+    if not data?
+      good_message = false
+      error_token = rb_util.rand 1000
+      rb_util.error_tell master, options, error_token, "call to bot_say with invalid data at #{new Date()}"
+    if good_message and not data.chan?
+      good_message = false
+      error_token = rb_util.rand 1000
+      rb_util.error_tell master, options, error_token, "call to bot_say with invalid data.chan at #{new Date()}"
+    if good_message and not data.msg?
+      good_message = false
+      error_token = rb_util.rand 1000
+      rb_util.error_tell master, options, error_token, "call to bot_say with invalid data.msg at #{new Date()}"
+    if good_message
+      rocketbot.say data.chan, data.msg.replace(/\r/g, '').replace(/\n/g,'')
   # outbound msgs (to IRC)
   master.on 'bot_say', (data) ->
     bot_say_common data

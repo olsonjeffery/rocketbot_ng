@@ -7,6 +7,16 @@ rand = (upper_limit) ->
   else
     mersenne.rand()
 
+error_tell = (hook, options, error_token, error_msg) ->
+  # send a msg to the tell plugin listener..
+  # so if it isn't registered, then this just
+  # gets shot into space.
+  for admin in options.admins
+    hook.emit "tell::new",
+      target: admin
+      tell_msg: "ERROR #{error_token}: #{error_msg}"
+      sender: options.nick
+
 safe_process = (client, info, cb) ->
   sb = client.raw_hook
   options = sb.bot_options
@@ -17,19 +27,11 @@ safe_process = (client, info, cb) ->
     console.log e
     console.log ">>>AFTER EXCEPTION MESSAGE"
     console.log "bot nick: #{options.nick}"
-    # send a msg to the tell plugin listener..
-    # so if it isn't registered, then this just
-    # gets shot into space.
-    for admin in options.admins
-      error_token = rand 10000
-      sb.emit "tell::new",
-        target: admin
-        tell_msg: "ERROR #{error_token}: Occured at #{info.time.toString()} plugin name: #{info.name} invocation path: #{info.type}"
-        sender: options.nick
-      sb.emit "tell::new",
-        target: admin
-        tell_msg: "ERROR #{error_token}: #{e.toString().truncate(393)}"
-        sender: options.nick
+    error_token = rand 10000
+    msg1 = "Occured at #{info.time.toString()} plugin name: #{info.name} invocation path: #{info.type}"
+    error_tell sb, options, error_token, msg1
+    msg2 = "#{e.toString().truncate(393)}"
+    error_tell sb, options, error_token, msg2
 
 module.exports =
   hook_client: (hook) ->
@@ -69,3 +71,4 @@ module.exports =
         client.say nick, "Only bot admins can invoke this action."
   rand: rand
   safe_process: safe_process
+  error_tell: error_tell

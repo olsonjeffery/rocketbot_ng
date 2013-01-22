@@ -135,7 +135,8 @@ class web_summary_listener_plugin
           client.say data.chan,
                      "\"#{$(desc[0]).attr('content').unescapeHTML()}\""
       shorturl url, (shorty) ->
-        client.say data.chan, shorty
+        if shorty?
+          client.say data.chan, shorty
 
       if data.save
         models.web_link.create
