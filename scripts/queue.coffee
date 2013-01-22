@@ -226,13 +226,26 @@ class queue_plugin
     models.queue_contents.create_or_find nick, msg.reply, (contents) ->
       results = JSON.parse contents.contents
       idx = 0
-      results = _.map results, (i) ->
+      first_idx = 0
+      comb = ""
+      spoke = false
+      client.say msg.reply, "#{nick}'s current stack:"
+      results = _.each results, (i) ->
+        spoke = false
         n = "#{idx}: #{i}"
+        use_comma = idx != first_idx
+        n = if use_comma then ", #{n}" else n
+        comb += n
         idx += 1
-        n
-      comb = results.join(', ')
+        if comb.length > 300
+          client.say msg.reply, comb
+          spoke = true
+          comb = ""
+          first_idx = idx
       comb = if comb == '' then '<empty>' else comb
-      client.say msg.reply, "#{nick}'s current stack: #{comb}"
+      if not spoke
+        client.say msg.reply, comb
+
 
 module.exports =
   plugins: [queue_plugin, qpush_plugin, qpop_plugin, qshift_plugin,
