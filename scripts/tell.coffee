@@ -60,6 +60,21 @@ class tell_plugin
       client.say msg.reply, "Ok, I'll tell #{target} '#{tell_msg}' next "+
         "time I see them."
 
+class tell_new_tell_listener_plugin
+  constructor: (@options, @db) ->
+    if not tell_message_initialized
+      tell_message_init @db
+  name: 'new_tell_monitor'
+  msg_type: 'listener'
+  hook_name: 'tell::new'
+  version: '1'
+  process: (client, data) ->
+    try
+      new_tell data.target, data.tell_msg, data.sender, ->
+    catch e
+      console.log "!!!BARFED IN tell::new"
+      console.log e.toString()
+
 class tell_logging_listener_plugin
   constructor: (@options, @db) ->
     if not tell_message_initialized
@@ -88,4 +103,5 @@ class tell_logging_listener_plugin
         setTimeout message_teller, timer_delay
 
 module.exports =
-  plugins: [tell_plugin, tell_logging_listener_plugin]
+  plugins: [tell_plugin, tell_logging_listener_plugin,
+            tell_new_tell_listener_plugin]

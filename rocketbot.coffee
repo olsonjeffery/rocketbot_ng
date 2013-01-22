@@ -86,9 +86,13 @@ master.on 'hook::ready', ->
   rocketbot.addListener "join", (chan, nick, msg) ->
     console.log "MASTER: rocketbot has joined #{chan}"
 
+  bot_say_common = (data) ->
+    rocketbot.say data.chan, data.msg.replace(/\r/g, '').replace(/\n/g,'')
   # outbound msgs (to IRC)
   master.on 'bot_say', (data) ->
-    rocketbot.say data.chan, data.msg.replace(/\r/g, '').replace(/\n/g,'')
+    bot_say_common data
+  master.on '*::bot_say', (data) ->
+    bot_say_common data
   master.on 'bot_send', (data) ->
     rocketbot.send data.cmd, data.chan, data.msg
   master.on 'bot_whois', (data) ->
@@ -96,8 +100,6 @@ master.on 'hook::ready', ->
     rocketbot.whois data, (info) ->
       console.log "got WHOIS resp from node-irc"
       master.emit 'bot_whois_resp', info
-  master.on '*::bot_say', (data) ->
-    rocketbot.say data.chan, data.msg.replace(/\r/g, '').replace(/\n/g,'')
   master.on '*::bot_send', (data) ->
     rocketbot.send data.cmd, data.chan, data.msg
   master.on '*::bot_whois', (data) ->

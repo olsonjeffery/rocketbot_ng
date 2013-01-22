@@ -8,6 +8,7 @@ Sequelize = require 'sequelize'
 Hook = (require 'tinyhook/hook').Hook
 
 rb_util = require './rb_util'
+rbu = rb_util
 
 SandboxHook = exports.SandboxHook = (hook_options) ->
   Hook.call this, hook_options
@@ -48,11 +49,18 @@ SandboxHook = exports.SandboxHook = (hook_options) ->
       nPlg
     listeners = _.filter @plugins, (plg) ->
       plg.msg_type == 'listener'
+    self = this
     _.each listeners, (plg) =>
-      self = this
       listener_process = (data) ->
         client = rb_util.hook_client self
-        plg.process.apply(plg, [client, data])
+        info =
+          name: plg.name
+          type: 'listener'
+          time: new Date()
+        rbu.safe_process client, info, ->
+          console.log "LISTENER: BEFORE #{plg.name} PROCESS CALL"
+          plg.process.apply(plg, [client, data])
+          console.log "LISTENER: AFTER #{plg.name} PROCESS CALL"
       @on "*::#{plg.hook_name}", (data) ->
         console.log "wildcard hit for #{plg.hook_name}"
         listener_process data
@@ -67,9 +75,23 @@ SandboxHook = exports.SandboxHook = (hook_options) ->
           match_cmd = _.detect plg.commands, (cmd) ->
             cmd == parsed_msg.command
           if match_cmd
-            plg.process client, parsed_msg
+            info =
+              name: plg.name
+              type: 'match_cmd'
+              time: new Date()
+            rbu.safe_process client, info, ->
+              console.log "MATCH_CMD: BEFORE #{plg.name} PROCESS CALL"
+              plg.process client, parsed_msg
+              console.log "MATCH_CMD: AFTER #{plg.name} PROCESS CALL"
         else if match_regex? and match_regex.test parsed_msg.text
-          plg.process client, parsed_msg
+          info =
+            name: plg.name
+            type: 'match_regex'
+            time: new Date()
+          rbu.safe_process client, info, ->
+            console.log "REGEX_CMD: BEFORE #{plg.name} PROCESS CALL"
+            plg.process client, parsed_msg
+            console.log "REGEX_CMD: BEFORE #{plg.name} PROCESS CALL"
   @on '*::recycle_sandbox', =>
     console.log "recycling sandbox!"
     @stop()
