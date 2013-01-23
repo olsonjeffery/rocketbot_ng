@@ -15,6 +15,77 @@ twitter_search = (query, cb) ->
       cb null
     cb resp.results
 
+articles = ['a', 'the', 'an', 'are', 'we', 'i', 'they', 'them',
+  'so', 'very', 'me', 'rt', '0', '1', '2', '3', '4', '5', '6',
+  '7', '8', '9', 'http', '//', '/', "/t", "/n", " ", '', '//t',
+  'of', 'to', 'with', 'is', 'at', 'this', 'you', 'and', 'in',
+  'that', 'for', 'has', 'do', "don't", 'be', 'it', 'who', 'yes',
+  'no', 'know', 'have', 'how', "it's", 'not', 'on', 'up', 'down',
+  'all', 'none', 'should', 'shall', 'would', 'she', 'he', 'him',
+  'her', 'his', 'hers', 'was', 'over', 'under', 'show', 'does',
+  "doesnt", "doesn't", "about", "less", 'where', 'by', 'buy',
+  'more', 'via'
+]
+class twitgeist_plugin
+  constructor: (@options) ->
+  name: 'twitgeist'
+  msg_type: 'message'
+  version: '1'
+  commands: [ 'twitgeist' ]
+  match_regex: ->
+    null
+  doc_name: 'twitgeist'
+  docs: ->
+    """
+    SYNTAX: #{@options.cmd_prefix}twitgeist <QUERY>
+    INFO: search the Twitter public API for <QUERY>, then show the most frequently
+          used terms in the result set.
+    NOTE: The twitter public API only returns recent results. So if you
+          query against a user who hasn't tweeted in several months, you'll
+          get nothing back :/
+    You can find more information about the Twitter search API at:
+    https://dev.twitter.com/docs/using-search
+    Under the 'Search Operators' section.
+    """
+  process: (client, msg) ->
+    query = msg.msg.compact()
+    if query == ''
+      client.say msg.reply, "You provide a query to search with"
+      return null
+    twitter_search query, (results) ->
+      if results == null
+        client.say msg.reply, "Error with query '#{query}'"
+      else
+        just_the_tweets = _.map results, (r) -> r.text
+        jtt_as_one = just_the_tweets.join ' '
+        jtt_as_one = jtt_as_one.replace /\.|,|:/g, ' '
+        all_words = jtt_as_one.split ' '
+        console.log jtt_as_one
+        word_counts = {}
+        _.each all_words, (word) ->
+          console.log "starting loop for #{word}"
+          word = word.toLowerCase()
+          is_article = _.detect articles, (a) -> a == word or word == query
+          console.log "input word: '#{word}' is_article? #{is_article?}"
+          if not is_article?
+            if not word_counts[word]?
+              word_counts[word] = 1
+            else
+              word_counts[word] += 1
+        words_as_objs = _.map word_counts, (v, k) -> { word: k, count: v }
+        words_as_objs = _.filter words_as_objs, (o) -> o.count > 1
+        if not words_as_objs?
+          console.log "no unique hits from a query of '#{query}', sorry"
+        else
+          sorted = _.sortBy words_as_objs, (o) -> o.count
+          sorted.reverse()
+          top_words = if sorted.length > 10 then sorted.first(10) else sorted
+          list = _.reduce top_words, (m, i) ->
+            m + "#{i.word} (#{i.count}), "
+          , "Top words for '#{query}': "
+          list = list.truncate(list.length - 2)
+          client.say msg.reply, list
+
 class twitter_search_plugin
   constructor: (@options) ->
   name: 'twitter_search'
@@ -193,5 +264,5 @@ class latest_tweet_plugin
 
 module.exports =
   plugins: [twitter_search_plugin, latest_tweet_plugin,
-            twitter_trending_plugin]
+            twitter_trending_plugin, twitgeist_plugin]
   search: twitter_search
