@@ -24,7 +24,7 @@ articles = ['a', 'the', 'an', 'are', 'we', 'i', 'they', 'them',
   'all', 'none', 'should', 'shall', 'would', 'she', 'he', 'him',
   'her', 'his', 'hers', 'was', 'over', 'under', 'show', 'does',
   "doesnt", "doesn't", "about", "less", 'where', 'by', 'buy',
-  'more', 'via'
+  'more', 'via', 'will', '&amp;'
 ]
 class twitgeist_plugin
   constructor: (@options) ->
