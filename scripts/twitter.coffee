@@ -1,19 +1,21 @@
 scrape = require '../scrape'
 _ = require 'underscore'
 
-search_base_url = 'http://search.twitter.com/search.json?q='
+search_base_url = 'http://search.twitter.com/search.json?q=##QUERY##&rpp=##RPP##'
 
-twitter_search = (query, cb) ->
+twitter_search_rpp = (query, rpp, cb) ->
   if query == ''
     return null
   if query.startsWith('@')
     query = query.replace('@', 'from:')
-  t_url = (search_base_url+query).escapeURL().replace('#', '%23')
+  t_url = (search_base_url.replace('##QUERY##', query).replace('##RPP##', rpp)).escapeURL().replace('#', '%23')
   console.log "About to search twitter with: '#{t_url}'"
   scrape.json t_url, (resp) ->
     if resp.error?
       cb null
     cb resp.results
+twitter_search = (query, cb) ->
+  twitter_search_rpp query, 15, cb
 
 articles = ['a', 'the', 'an', 'are', 'we', 'i', 'they', 'them',
   'so', 'very', 'me', 'rt', '0', '1', '2', '3', '4', '5', '6',
@@ -24,7 +26,7 @@ articles = ['a', 'the', 'an', 'are', 'we', 'i', 'they', 'them',
   'all', 'none', 'should', 'shall', 'would', 'she', 'he', 'him',
   'her', 'his', 'hers', 'was', 'over', 'under', 'show', 'does',
   "doesnt", "doesn't", "about", "less", 'where', 'by', 'buy',
-  'more', 'via', 'will', '&amp;'
+  'more', 'via', 'will', '&amp;', '&gt', '--&gt', 'our', "we're"
 ]
 class twitgeist_plugin
   constructor: (@options) ->
@@ -52,7 +54,7 @@ class twitgeist_plugin
     if query == ''
       client.say msg.reply, "You provide a query to search with"
       return null
-    twitter_search query, (results) ->
+    twitter_search_rpp query, 100, (results) ->
       if results == null
         client.say msg.reply, "Error with query '#{query}'"
       else
@@ -63,10 +65,9 @@ class twitgeist_plugin
         console.log jtt_as_one
         word_counts = {}
         _.each all_words, (word) ->
-          console.log "starting loop for #{word}"
           word = word.toLowerCase()
-          is_article = _.detect articles, (a) -> a == word or word == query
-          console.log "input word: '#{word}' is_article? #{is_article?}"
+          is_article = word.length < 3 or word == query or
+            word.startsWith('co/') or _.detect articles, (a) -> a == word
           if not is_article?
             if not word_counts[word]?
               word_counts[word] = 1
@@ -75,15 +76,15 @@ class twitgeist_plugin
         words_as_objs = _.map word_counts, (v, k) -> { word: k, count: v }
         words_as_objs = _.filter words_as_objs, (o) -> o.count > 1
         if not words_as_objs?
-          console.log "no unique hits from a query of '#{query}', sorry"
+          client.say msg.reply, "no unique hits from a query of '#{query}', sorry"
         else
           sorted = _.sortBy words_as_objs, (o) -> o.count
           sorted.reverse()
-          top_words = if sorted.length > 10 then sorted.first(10) else sorted
+          top_words = if sorted.length > 20 then sorted.first(20) else sorted
           list = _.reduce top_words, (m, i) ->
             m + "#{i.word} (#{i.count}), "
           , "Top words for '#{query}': "
-          list = list.truncate(list.length - 2)
+          list = list.truncate(list.length - 2, true, 'right', '')
           client.say msg.reply, list
 
 class twitter_search_plugin
