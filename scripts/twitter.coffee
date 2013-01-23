@@ -26,7 +26,8 @@ articles = ['a', 'the', 'an', 'are', 'we', 'i', 'they', 'them',
   'all', 'none', 'should', 'shall', 'would', 'she', 'he', 'him',
   'her', 'his', 'hers', 'was', 'over', 'under', 'show', 'does',
   "doesnt", "doesn't", "about", "less", 'where', 'by', 'buy',
-  'more', 'via', 'will', '&amp;', '&gt', '--&gt', 'our', "we're"
+  'more', 'via', 'will', '&amp;', '&gt', '--&gt', 'our', "we're",
+  'from', 'but', 'than', 'then'
 ]
 class twitgeist_plugin
   constructor: (@options) ->
@@ -62,7 +63,6 @@ class twitgeist_plugin
         jtt_as_one = just_the_tweets.join ' '
         jtt_as_one = jtt_as_one.replace /\.|,|:/g, ' '
         all_words = jtt_as_one.split ' '
-        console.log jtt_as_one
         word_counts = {}
         _.each all_words, (word) ->
           word = word.toLowerCase()
