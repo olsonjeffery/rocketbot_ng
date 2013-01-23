@@ -286,7 +286,11 @@ class twitgeist_plugin
     if query == ''
       client.say msg.reply, "You provide a query to search with"
       return null
-    twitter_search_full query, 1, 100, (results) ->
+    all_results = []
+    total_pages = 5
+    curr_page = 1
+    final_results_cb = (results) ->
+      console.log "total number of results: #{results.length}"
       if results == null
         client.say msg.reply, "Error with query '#{query}'"
       else
@@ -317,6 +321,15 @@ class twitgeist_plugin
           , "Top words for '#{query}': "
           list = list.truncate(list.length - 2, true, 'right', '')
           client.say msg.reply, list
+    page_result_getter_cb = (results) ->
+      curr_page += 1
+      _.each results, (r) ->
+        all_results.push r
+      if curr_page <= total_pages
+        twitter_search_full query, curr_page, 100, page_result_getter_cb
+      else
+        final_results_cb all_results
+    twitter_search_full query, curr_page, 100, page_result_getter_cb
 
 class twitter_search_plugin
   constructor: (@options) ->
