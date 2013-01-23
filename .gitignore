@@ -24,3 +24,5 @@ config.json
 
 /*.js
 /scripts/*.js
+
+/prod_push.sh
