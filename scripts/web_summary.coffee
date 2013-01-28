@@ -82,7 +82,7 @@ class links_plugin
             display = if l.desc.indexOf(l.url) == -1
               "#{l.url} - \"#{l.title.unescapeHTML()}\""
             else
-              "\"#{l.desc.unescapeHTML()}\""
+              "\"#{l.desc.unescapeHTML().trim()} \""
             client.say msg.reply, "<#{l.nick}> " +
               "#{display} #{l.createdAt.relative()}"
         else
