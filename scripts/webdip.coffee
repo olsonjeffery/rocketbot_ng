@@ -214,7 +214,7 @@ class webdip_dip_plugin
   name: 'dip'
   msg_type: 'message'
   version: '1'
-  commands: ['dip']
+  commands: ['dip', 'webdip']
   match_regex: () ->
     null
   doc_name: 'dip'
