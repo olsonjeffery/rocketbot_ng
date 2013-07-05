@@ -1,21 +1,44 @@
 scrape = require '../scrape'
 _ = require 'underscore'
+options = require '../options'
 
-search_base_url = 'http://search.twitter.com/search.json?q=##QUERY##&rpp=##RPP##&page=##PAGE##'
+Twit = require 'twit'
+
+T = new Twit({
+  consumer_key:         options.twitter.consumer_key,
+  consumer_secret:      options.twitter.consumer_secret,
+  access_token:         options.twitter.access_token,
+  access_token_secret:  options.twitter.access_token_secret
+})
 
 twitter_search_full = (query, page, rpp, cb) ->
-  if query == ''
-    return null
   if query.startsWith('@')
     query = query.replace('@', 'from:')
-  t_url = (search_base_url.replace('##QUERY##', query).replace('##RPP##', rpp).replace('##PAGE##', page)).escapeURL().replace('#', '%23')
-  console.log "About to search twitter with: '#{t_url}'"
-  scrape.json t_url, (resp) ->
-    if resp.error?
-      cb null
-    cb resp.results
+  T.get 'search/tweets', {count: rpp, q: query}, (err, reply) ->
+    if err?
+      console.log "TWIT ERR"
+      console.log err
+      throw err
+    else
+      console.log "TWIT GOT REPLY"
+      cb reply.statuses
+
 twitter_search = (query, cb) ->
   twitter_search_full query, 1, 15, cb
+
+display_tweet_common = (r, client, msg)->
+  tweet =
+    from_user: r.user.screen_name
+    created: new Date(r.created_at)
+    text: r.text
+  #conolse.log "TWIT STATUS"
+  #console.log r
+  #console.log "TWIT USER"
+  #console.log r.user
+  #console.log "TWIT RETWEETED_STATUS"
+  #console.log r.retweeted_status
+  client.say msg.reply, "@#{tweet.from_user}: \"#{tweet.text.unescapeHTML()}\" "+
+    "#{tweet.created.relative()}."
 
 articles = [
   'rt', '0', '1', '2', '3', '4', '5', '6',
@@ -361,22 +384,13 @@ class twitter_search_plugin
       if results == null
         client.say msg.reply, "Error with query '#{query}'"
       if results.length > 0
-        result_set = if results.length < 6
-          results
+        results_no_rt = _.filter(results, (x)->not x.retweeted_status?)
+        result_set = if results_no_rt.length < 6
+          results_no_rt
         else
-          _.initial(results, results.length - 5)
+          _.initial(results_no_rt, results_no_rt.length - 5)
         _.each result_set, (r) ->
-          tweet =
-            from_user: r.from_user
-            created: new Date(r.created_at)
-            text: r.text
-            to_user: r.to_user
-          to_suffix = if tweet.to_user?
-            " to @#{tweet.to_user}"
-          else
-            ""
-          client.say msg.reply, "@#{tweet.from_user}: \"#{tweet.text.unescapeHTML()}\" "+
-            "#{tweet.created.relative()}#{to_suffix}."
+          display_tweet_common r, client, msg
       else
         client.say msg.reply, "No results found for '#{query}'."
 
@@ -492,21 +506,7 @@ class latest_tweet_plugin
       if results.length > 0
         to_suffix = ''
         r = _.first(results)
-        tweet =
-          from_user: r.from_user
-          created: new Date(r.created_at)
-          text: r.text
-          to_user: r.to_user
-        to_suffix = if tweet.to_user?
-          " to @#{tweet.to_user}"
-        else
-          ""
-        client.say msg.reply,
-          "@#{tweet.from_user}: \"#{tweet.text.unescapeHTML()}\" "+
-          "#{tweet.created.relative()}#{to_suffix}."
-      else
-        client.say msg.reply, "No results found for '#{query}'."
-
+        display_tweet_common r, client, msg
 module.exports =
   plugins: [twitter_search_plugin, latest_tweet_plugin,
             twitter_trending_plugin, twitgeist_plugin]

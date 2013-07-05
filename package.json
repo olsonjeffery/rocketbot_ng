@@ -24,7 +24,8 @@
     "mersenne":">= 0.0.1",
 	"ping":">= 0.0.1",
 	"levenshtein":">= 0.0.1",
-	"shorturl":">=0.0.1"
+	"shorturl":">=0.0.1",
+	"twit":">=0.0.1"
   },
   "devDependencies": {},
   "optionalDependencies": {},
